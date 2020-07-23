@@ -1,0 +1,9 @@
+port: 8000
+
+db:
+  postgres:
+    username: "postgres"
+    dbname: "jewelryshop"
+    sslmode: "disable"
+    port: "54320"
+    host: "localhost"

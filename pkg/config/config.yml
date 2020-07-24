@@ -1,0 +1,13 @@
+port: 8000
+
+auth:
+  hash_salt: "PIxP1o559vv5SQGiOEat"
+  signing_key: "PIxP1o559vv5SQGiOEat"
+
+db:
+  postgres:
+    username: "postgres"
+    dbname: "jewelryshop"
+    sslmode: "disable"
+    port: "5432"
+    host: "db"

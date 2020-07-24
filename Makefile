@@ -1,5 +1,17 @@
-run-db:
-	docker run -d --name jewelry-shop-2 -v ./.build/data/:/var/lib/postgresql/data -p 54320:5432 postgres:12.0-alpine
+build:
+	go mod download && CGO_ENABLED=0 GOOS=linux go build -o ./.bin/app ./cmd/api/main.go
 
-run:
-	go run cmd/api/main.go
+run: build
+	docker-compose up --remove-orphans --build server
+
+create-migration:
+	migrate create -ext sql -dir schema/ -seq $(NAME)
+
+migrate:
+	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/jewelryshop?sslmode=disable up
+
+migrate-down:
+	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/jewelryshop?sslmode=disable down 1
+
+migrate-drop:
+	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/jewelryshop?sslmode=disable drop

@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/zhashkevych/jewelry-shop-backend/config"
-	"github.com/zhashkevych/jewelry-shop-backend/server"
+	"github.com/zhashkevych/jewelry-shop-backend"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/config"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/handler"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/service"
 	"os"
 	"os/signal"
 	"syscall"
@@ -22,12 +23,31 @@ func init() {
 }
 
 func main() {
-	db := initDB()
+	db, err := repository.NewPostgresDB(repository.Config{
+		Host:     viper.GetString("db.postgres.host"),
+		Port:     viper.GetString("db.postgres.port"),
+		Username: viper.GetString("db.postgres.username"),
+		DBName:   viper.GetString("db.postgres.dbname"),
+		SSLMode:  viper.GetString("db.postgres.sslmode"),
+		Password: viper.GetString("db.postgres.password"),
+	})
+	if err != nil {
+		logrus.Fatalf("Error occurred on db initialization: %s\n", err.Error())
+	}
 
-	srv := server.NewServer(db)
+	// Init Dependecies
+	repos := repository.NewRepository(db)
+	services := service.NewService(service.Dependencies{
+		Repos:      repos,
+		HashSalt:   viper.GetString("auth.hash_salt"),
+		SigningKey: []byte(viper.GetString("auth.signing_key")),
+	})
+	handlers := handler.NewHandler(services)
 
+	// Create & Run HTTP Server
+	server := jewerly.NewServer()
 	go func() {
-		if err := srv.Run(viper.GetString("port")); err != nil {
+		if err := server.Run(viper.GetString("port"), handlers.Init()); err != nil {
 			logrus.Errorf("Error occurred while running server: %s\n", err.Error())
 		}
 	}()
@@ -41,25 +61,11 @@ func main() {
 	ctx, shutdown := context.WithTimeout(context.Background(), 5*time.Second)
 	defer shutdown()
 
-	srv.Stop(ctx)
-}
-
-func initDB() *sqlx.DB {
-	db, err := sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s",
-		viper.GetString("db.postgres.host"),
-		viper.GetString("db.postgres.port"),
-		viper.GetString("db.postgres.username"),
-		viper.GetString("db.postgres.dbname"),
-		viper.GetString("db.postgres.sslmode"),
-		viper.GetString("db.postgres.password"),
-	))
-	if err != nil {
-		logrus.Fatalf("Error occurred while establishing connection to postgres: %s\n", err.Error())
+	if err := server.Stop(ctx); err != nil {
+		logrus.Errorf("error occurred while shutting down http server: %s\n", err.Error())
 	}
 
-	if err := db.Ping(); err != nil {
-		logrus.Fatalf("Error occurred while postgres health check %s\n", err.Error())
+	if err := db.Close(); err != nil {
+		logrus.Errorf("error occurred while closing db connection: %s\n", err.Error())
 	}
-
-	return db
 }

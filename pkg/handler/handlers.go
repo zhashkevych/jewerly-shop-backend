@@ -30,7 +30,7 @@ func (h Handler) Init() *gin.Engine {
 	})
 
 	h.initAuthRoutes(router)
-	h.initProtectedRoutes(router)
+	h.initAPIRoutes(router)
 	h.initAdminRoutes(router)
 
 	return router
@@ -44,10 +44,19 @@ func (h *Handler) initAuthRoutes(router *gin.Engine) {
 	}
 }
 
-func (h *Handler) initProtectedRoutes(router *gin.Engine) {
-
+func (h *Handler) initAPIRoutes(router *gin.Engine) {
+	api := router.Group("/api", h.userIdentity)
+	{
+		user := api.Group("/user")
+		{
+			user.GET("/profile")
+		}
+	}
 }
 
 func (h *Handler) initAdminRoutes(router *gin.Engine) {
+	_ = router.Group("/admin")
+	{
 
+	}
 }

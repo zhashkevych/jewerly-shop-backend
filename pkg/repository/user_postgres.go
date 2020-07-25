@@ -37,3 +37,18 @@ func (r *UserRepository) GetByCredentials(email, passwordHash string) (jewerly.U
 
 	return user, nil
 }
+
+func (r *UserRepository) GetById(id int64) (jewerly.User, error) {
+	var user jewerly.User
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", userTableName)
+	err := r.db.Get(&user, query, id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return jewerly.User{}, jewerly.ErrUserNotFound
+		}
+
+		return jewerly.User{}, err
+	}
+
+	return user, nil
+}

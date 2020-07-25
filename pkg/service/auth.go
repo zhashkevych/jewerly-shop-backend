@@ -2,6 +2,7 @@ package service
 
 import (
 	"crypto/sha1"
+	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
@@ -52,6 +53,32 @@ func (a *Authorization) SignIn(email, password string) (string, error) {
 	})
 
 	return token.SignedString(a.signingKey)
+}
+
+func (a *Authorization) ParseToken(token string) (jewerly.User, error) {
+	t, _ := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return a.signingKey, nil
+	})
+
+	claims, ok := t.Claims.(jwt.MapClaims)
+	if !ok {
+		return jewerly.User{}, fmt.Errorf("error get user claims from token")
+	}
+
+	sub, ex := claims["sub"].(string)
+	if !ex {
+		return jewerly.User{}, errors.New("token is invalid")
+	}
+
+	id, err := strconv.ParseInt(sub, 10, 64)
+	if err != nil {
+		return jewerly.User{}, fmt.Errorf("error convert user id from string to int: err `%s`", err)
+	}
+
+	return jewerly.User{Id: id}, nil
 }
 
 func (a *Authorization) getPasswordHash(password string) string {

@@ -1,6 +1,7 @@
 package service
 
 import (
+	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 )
 
@@ -14,12 +15,11 @@ type SignUpInput struct {
 type Auth interface {
 	SignUp(inp SignUpInput) error
 	SignIn(email, password string) (string, error)
+	ParseToken(token string) (jewerly.User, error)
 }
 
 type User interface {
-	GetById()
-	GetAll()
-	Update()
+	GetById(id int64) (jewerly.User, error)
 }
 
 type Dependencies struct {

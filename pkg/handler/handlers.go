@@ -16,7 +16,7 @@ func NewHandler(services *service.Service) *Handler {
 	}
 }
 
-func (h Handler) Init() *gin.Engine {
+func (h *Handler) Init() *gin.Engine {
 	// Init gin handler
 	router := gin.Default()
 	router.Use(
@@ -39,8 +39,8 @@ func (h Handler) Init() *gin.Engine {
 func (h *Handler) initAuthRoutes(router *gin.Engine) {
 	auth := router.Group("/auth")
 	{
-		auth.POST("/sign-up", h.SignUp)
-		auth.POST("/sign-in", h.SignIn)
+		auth.POST("/sign-up", h.signUp)
+		auth.POST("/sign-in", h.signIn)
 	}
 }
 
@@ -49,14 +49,31 @@ func (h *Handler) initAPIRoutes(router *gin.Engine) {
 	{
 		user := api.Group("/user")
 		{
-			user.GET("/profile")
+			user.GET("/profile", h.getUserProfile)
+			user.GET("/orders", h.getUserOrders)
 		}
+
+		products := api.Group("/products")
+		{
+			products.GET("", h.getAllProducts)
+			products.GET("/:id", h.getProduct)
+		}
+
+		api.POST("/order", h.placeOrder)
 	}
 }
 
 func (h *Handler) initAdminRoutes(router *gin.Engine) {
-	_ = router.Group("/admin")
+	admin := router.Group("/admin", h.adminIdentity)
 	{
-
+		// product routes
+		admin.POST("/products", h.createProduct)
+		admin.GET("/products", h.getAllProducts)
+		admin.GET("/products/:id", h.getProduct)
+		admin.PUT("/products/:id", h.updateProduct)
+		admin.DELETE("/products/:id", h.deleteProduct)
+		// orders routes
+		admin.GET("/orders", h.getAllOrders)
+		admin.GET("/orders/:id", h.getOrder)
 	}
 }

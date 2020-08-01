@@ -14,7 +14,7 @@ type signUpInput struct {
 	Password  string `json:"password" binding:"required"`
 }
 
-func (h *Handler) SignUp(c *gin.Context) {
+func (h *Handler) signUp(c *gin.Context) {
 	var inp signUpInput
 	if err := c.ShouldBindJSON(&inp); err != nil {
 		logrus.Errorf("Failed to bind signUp structure: %s\n", err.Error())
@@ -46,7 +46,7 @@ type signInResponse struct {
 	Token string `json:"token"`
 }
 
-func (h *Handler) SignIn(c *gin.Context) {
+func (h *Handler) signIn(c *gin.Context) {
 	var inp signInInput
 	if err := c.ShouldBindJSON(&inp); err != nil {
 		logrus.Errorf("Failed to bind signUp structure: %s\n", err.Error())

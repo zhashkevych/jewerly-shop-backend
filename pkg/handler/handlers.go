@@ -75,5 +75,7 @@ func (h *Handler) initAdminRoutes(router *gin.Engine) {
 		// orders routes
 		admin.GET("/orders", h.getAllOrders)
 		admin.GET("/orders/:id", h.getOrder)
+		// product images
+		admin.POST("/upload", h.uploadImage)
 	}
 }

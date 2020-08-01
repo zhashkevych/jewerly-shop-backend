@@ -24,6 +24,10 @@ func (h *Handler) getProduct(c *gin.Context) {
 
 }
 
+func (h *Handler) uploadImage(c *gin.Context) {
+
+}
+
 // Orders Handlers
 
 func (h *Handler) getAllOrders(c *gin.Context) {

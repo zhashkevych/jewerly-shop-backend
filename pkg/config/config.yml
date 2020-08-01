@@ -11,3 +11,6 @@ db:
     sslmode: "disable"
     port: "5432"
     host: "db"
+
+storage:
+  url: "storage:9000"

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	_ "github.com/lib/pq"
+	"github.com/minio/minio-go/v6"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/zhashkevych/jewelry-shop-backend"
@@ -10,6 +11,8 @@ import (
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/handler"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/service"
+	"github.com/zhashkevych/jewelry-shop-backend/storage"
+	miniostore "github.com/zhashkevych/jewelry-shop-backend/storage/minio"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,6 +36,16 @@ func main() {
 	})
 	if err != nil {
 		logrus.Fatalf("Error occurred on db initialization: %s\n", err.Error())
+	}
+
+	minioStorage, err := initStorage()
+	if err != nil {
+		logrus.Fatalf("Error occurred on storage initialization: %s\n", err.Error())
+	}
+
+	err = minioStorage.CreateBucket("images", "us-east-1")
+	if err != nil {
+		logrus.Fatalf("Error occurred on bucket creation: %s\n", err.Error())
 	}
 
 	// Init Dependecies
@@ -68,4 +81,16 @@ func main() {
 	if err := db.Close(); err != nil {
 		logrus.Errorf("error occurred while closing db connection: %s\n", err.Error())
 	}
+}
+
+func initStorage() (storage.Storage, error) {
+	client, err := minio.New(
+		viper.GetString("storage.url"),
+		os.Getenv("STORAGE_ACCESS_KEY"),
+		os.Getenv("STORAGE_SECRET"), false)
+	if err != nil {
+		return nil, err
+	}
+
+	return miniostore.NewStorage(client), nil
 }

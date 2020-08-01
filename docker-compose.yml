@@ -6,10 +6,14 @@ services:
     container_name: "jewelry-shop"
     build: ./
     command: ./app
+    environment:
+      - "STORAGE_ACCESS_KEY=minioadmin"
+      - "STORAGE_SECRET=minioadmin"
     ports:
       - 8000:8000
     depends_on:
       - db
+      - storage
 
   db:
     restart: always
@@ -17,4 +21,16 @@ services:
     volumes:
       - ./.build/volumes/databases/postgres/data:/var/lib/postgresql/data
     ports:
-      - "55432:5432"
+      - 55432:5432
+
+  storage:
+      restart: always
+      image: minio/minio
+      ports:
+        - 9000:9000
+      volumes:
+        - ./.build/volumes/storages/minio:/data
+      environment:
+        MINIO_ACCESS_KEY: minioadmin
+        MINIO_SECRET_KEY: minioadmin
+      command: minio server /minio/data

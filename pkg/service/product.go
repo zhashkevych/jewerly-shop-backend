@@ -16,3 +16,7 @@ func NewProductService(repo repository.Product) *ProductService {
 func (s *ProductService) Create(product jewerly.CreateProductInput) error {
 	return s.repo.Create(product)
 }
+
+func (s *ProductService) GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error) {
+	return s.repo.GetAll(filters)
+}

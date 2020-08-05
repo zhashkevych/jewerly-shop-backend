@@ -10,6 +10,7 @@ const (
 	categoriesTable    = "categories"
 	titlesTable        = "titles"
 	descriptionsTable  = "descriptions"
+	materialsTable     = "materials"
 	imagesTable        = "images"
 	productsTable      = "products"
 	productImagesTable = "product_images"

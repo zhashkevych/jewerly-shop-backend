@@ -41,6 +41,14 @@ CREATE TABLE images
     "alt_text" varchar(255)
 );
 
+CREATE TABLE materials
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
 CREATE TABLE products
 (
     "id"             serial                           NOT NULL UNIQUE,
@@ -49,7 +57,9 @@ CREATE TABLE products
     "previous_price" DECIMAL(10, 2),
     "code"           varchar(255),
     "description_id" int REFERENCES descriptions (id) NOT NULL,
-    "category_id"    int REFERENCES categories (id)   NOT NULL
+    "category_id"    int REFERENCES categories (id)   NOT NULL,
+    "material_id"    int REFERENCES materials (id)    NOT NULL
+
 );
 
 CREATE TABLE product_images

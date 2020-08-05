@@ -15,6 +15,7 @@ type User interface {
 
 type Product interface {
 	Create(product jewerly.CreateProductInput) error
+	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
 }
 
 type Repository struct {

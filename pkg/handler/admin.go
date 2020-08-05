@@ -40,7 +40,18 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 }
 
 func (h *Handler) getAllProducts(c *gin.Context) {
+	language := jewerly.GetLanguageFromQuery(c.Query("language"))
 
+	products, err := h.services.Product.GetAll(jewerly.GetAllProductsFilters{
+		Language: language,
+	})
+	if err != nil {
+		logrus.Errorf("Failed to get products: %s\n", err.Error())
+		newErrorResponse(c, getStatusCode(err), err)
+		return
+	}
+
+	c.JSON(http.StatusOK, products)
 }
 
 func (h *Handler) getProduct(c *gin.Context) {

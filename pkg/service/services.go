@@ -26,6 +26,7 @@ type User interface {
 
 type Product interface {
 	Create(jewerly.CreateProductInput) error
+	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
 }
 
 // Services Interface, Constructor & Dependencies

@@ -47,11 +47,24 @@ func (r *ProductRepository) Create(product jewerly.CreateProductInput) error {
 		return err
 	}
 
+	// insert meterial
+	var materialId int
+	query, args = multiLanguageInsertQuery(materialsTable, product.Material)
+	row = tx.QueryRow(query, args...)
+
+	err = row.Scan(&materialId)
+	if err != nil {
+		logrus.Errorf("[Create Product] create materials error: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
 	// insert product
 	var productId int
-	row = tx.QueryRow(fmt.Sprintf(`INSERT INTO %s (title_id, description_id, current_price, previous_price, code, category_id)
-								VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`, productsTable),
-								titleId, descriptionId, product.CurrentPrice, product.PreviousPrice, product.Code, product.CategoryId)
+	row = tx.QueryRow(fmt.Sprintf(`INSERT INTO %s 
+								(title_id, description_id, material_id, current_price, previous_price, code, category_id)
+								VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`, productsTable),
+		titleId, descriptionId, materialId, product.CurrentPrice, product.PreviousPrice, product.Code, product.CategoryId)
 	err = row.Scan(&productId)
 	if err != nil {
 		logrus.Errorf("[Create Product] create product error: %s", err.Error())
@@ -62,7 +75,7 @@ func (r *ProductRepository) Create(product jewerly.CreateProductInput) error {
 	// insert product images
 	var imageValues string
 	for i, id := range product.ImageIds {
-		if i == len(product.ImageIds) - 1 {
+		if i == len(product.ImageIds)-1 {
 			imageValues += fmt.Sprintf("($1, %d)", id)
 		} else {
 			imageValues += fmt.Sprintf("($1, %d), ", id)
@@ -84,4 +97,17 @@ func multiLanguageInsertQuery(table string, input jewerly.MultiLanguageInput) (s
 	args := []interface{}{input.English, input.Russian, input.Ukrainian}
 
 	return query, args
+}
+
+func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error) {
+	var products jewerly.ProductsList
+
+	query := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, p.current_price,
+							p.previous_price, p.code, p.category_id FROM %[2]s p
+							JOIN %[3]s t on t.id = p.title_id
+							JOIN %[4]s d on d.id = p.description_id
+							JOIN %[5]s m on m.id = p.material_id`, filters.Language, productsTable, titlesTable, descriptionsTable, materialsTable)
+	err := r.db.Select(&products.Products, query)
+
+	return products, err
 }

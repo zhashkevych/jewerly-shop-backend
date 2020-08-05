@@ -6,7 +6,16 @@ import (
 )
 
 const (
-	userTableName = "users"
+	userTable          = "users"
+	categoriesTable    = "categories"
+	titlesTable        = "titles"
+	descriptionsTable  = "descriptions"
+	imagesTable        = "images"
+	productsTable      = "products"
+	productImagesTable = "product_images"
+	ordersTable        = "orders"
+	orderItemsTable    = "order_items"
+	adminUsersTable    = "admin_users"
 )
 
 type Config struct {

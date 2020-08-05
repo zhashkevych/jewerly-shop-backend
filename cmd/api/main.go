@@ -50,7 +50,7 @@ func main() {
 
 	// Init Dependecies
 	repos := repository.NewRepository(db)
-	services := service.NewService(service.Dependencies{
+	services := service.NewServices(service.Dependencies{
 		Repos:      repos,
 		HashSalt:   viper.GetString("auth.hash_salt"),
 		SigningKey: []byte(viper.GetString("auth.signing_key")),

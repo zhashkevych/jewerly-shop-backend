@@ -19,13 +19,13 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 
 func (r *UserRepository) Create(user jewerly.User) error {
 	_, err := r.db.Exec(fmt.Sprintf("INSERT INTO %s (first_name, last_name, email, password_hash) VALUES ($1, $2, $3, $4)",
-		userTableName), user.FirstName, user.LastName, user.Email, user.PasswordHash)
+		userTable), user.FirstName, user.LastName, user.Email, user.PasswordHash)
 	return err
 }
 
 func (r *UserRepository) GetByCredentials(email, passwordHash string) (jewerly.User, error) {
 	var user jewerly.User
-	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1 AND password_hash=$2", userTableName)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1 AND password_hash=$2", userTable)
 	err := r.db.Get(&user, query, email, passwordHash)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -40,7 +40,7 @@ func (r *UserRepository) GetByCredentials(email, passwordHash string) (jewerly.U
 
 func (r *UserRepository) GetById(id int64) (jewerly.User, error) {
 	var user jewerly.User
-	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", userTableName)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", userTable)
 	err := r.db.Get(&user, query, id)
 	if err != nil {
 		if err == sql.ErrNoRows {

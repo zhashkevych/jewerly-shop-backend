@@ -5,6 +5,7 @@ import (
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 )
 
+// Authorization
 type SignUpInput struct {
 	FirstName string
 	LastName  string
@@ -18,23 +19,31 @@ type Auth interface {
 	ParseToken(token string) (jewerly.User, error)
 }
 
+// Users
 type User interface {
 	GetById(id int64) (jewerly.User, error)
 }
 
+type Product interface {
+	Create(jewerly.CreateProductInput) error
+}
+
+// Services Interface, Constructor & Dependencies
 type Dependencies struct {
 	Repos      *repository.Repository
 	HashSalt   string
 	SigningKey []byte
 }
 
-type Service struct {
+type Services struct {
 	Auth
 	User
+	Product
 }
 
-func NewService(deps Dependencies) *Service {
-	return &Service{
-		Auth: NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
+func NewServices(deps Dependencies) *Services {
+	return &Services{
+		Auth:    NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
+		Product: NewProductService(deps.Repos.Product),
 	}
 }

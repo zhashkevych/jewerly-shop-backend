@@ -13,12 +13,18 @@ type User interface {
 	//Update(id int64, newUser jewerly.User) error
 }
 
+type Product interface {
+	Create(product jewerly.CreateProductInput) error
+}
+
 type Repository struct {
 	User
+	Product
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		User: NewUserRepository(db),
+		User:    NewUserRepository(db),
+		Product: NewProductRepository(db),
 	}
 }

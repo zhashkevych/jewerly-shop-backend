@@ -1,11 +1,28 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
+	jewerly "github.com/zhashkevych/jewelry-shop-backend"
+	"net/http"
+)
 
 // Products Handlers
-
 func (h *Handler) createProduct(c *gin.Context) {
+	var inp jewerly.CreateProductInput
+	if err := c.ShouldBindJSON(&inp); err != nil {
+		logrus.Errorf("Failed to bind createProductInput structure: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
 
+	if err := h.services.Product.Create(inp); err != nil {
+		logrus.Errorf("Failed to create new product: %s\n", err.Error())
+		newErrorResponse(c, getStatusCode(err), err)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func (h *Handler) updateProduct(c *gin.Context) {

@@ -20,3 +20,11 @@ func (s *ProductService) Create(product jewerly.CreateProductInput) error {
 func (s *ProductService) GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error) {
 	return s.repo.GetAll(filters)
 }
+
+func (s *ProductService) Delete(id int) error {
+	return s.repo.Delete(id)
+}
+
+func (s *ProductService) GetById(id int, language string) (jewerly.ProductResponse, error) {
+	return s.repo.GetById(id, language)
+}

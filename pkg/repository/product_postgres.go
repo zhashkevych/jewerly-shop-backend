@@ -111,3 +111,39 @@ func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewer
 
 	return products, err
 }
+
+func (r *ProductRepository) Delete(id int) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE product_id=$1", productImagesTable), id)
+	if err != nil {
+		logrus.Errorf("[Delete Product] delete images error: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(fmt.Sprintf("DELETE FROM %s WHERE id=$1", productsTable), id)
+	if err != nil {
+		logrus.Errorf("[Delete Product] delete product error: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (r *ProductRepository) GetById(id int, language string) (jewerly.ProductResponse, error) {
+	var product jewerly.ProductResponse
+
+	query := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, p.current_price,
+							p.previous_price, p.code, p.category_id FROM %[2]s p
+							JOIN %[3]s t on t.id = p.title_id
+							JOIN %[4]s d on d.id = p.description_id
+							JOIN %[5]s m on m.id = p.material_id WHERE p.id = $1`, language, productsTable, titlesTable, descriptionsTable, materialsTable)
+	err := r.db.Get(&product, query, id)
+
+	return product, err
+}

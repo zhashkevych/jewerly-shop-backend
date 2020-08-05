@@ -51,14 +51,14 @@ CREATE TABLE materials
 
 CREATE TABLE products
 (
-    "id"             serial                           NOT NULL UNIQUE,
-    "title_id"       int REFERENCES titles (id)       NOT NULL,
-    "current_price"  DECIMAL(10, 2)                   NOT NULL,
+    "id"             serial                                             NOT NULL UNIQUE,
+    "title_id"       int REFERENCES titles (id) ON DELETE CASCADE       NOT NULL,
+    "current_price"  DECIMAL(10, 2)                                     NOT NULL,
     "previous_price" DECIMAL(10, 2),
     "code"           varchar(255),
-    "description_id" int REFERENCES descriptions (id) NOT NULL,
-    "category_id"    int REFERENCES categories (id)   NOT NULL,
-    "material_id"    int REFERENCES materials (id)    NOT NULL
+    "description_id" int REFERENCES descriptions (id) ON DELETE CASCADE NOT NULL,
+    "category_id"    int REFERENCES categories (id) ON DELETE CASCADE   NOT NULL,
+    "material_id"    int REFERENCES materials (id) ON DELETE CASCADE    NOT NULL
 
 );
 
@@ -82,9 +82,9 @@ CREATE TABLE orders
 
 CREATE TABLE order_items
 (
-    "id"         serial                       NOT NULL UNIQUE,
-    "order_id"   int REFERENCES orders (id)   NOT NULL,
-    "product_id" int REFERENCES products (id) NOT NULL
+    "id"         serial                                         NOT NULL UNIQUE,
+    "order_id"   int REFERENCES orders (id) ON DELETE CASCADE   NOT NULL,
+    "product_id" int REFERENCES products (id) ON DELETE CASCADE NOT NULL
 );
 
 -- Admin Users

@@ -45,8 +45,8 @@ CREATE TABLE products
 (
     "id"             serial                           NOT NULL UNIQUE,
     "title_id"       int REFERENCES titles (id)       NOT NULL,
-    "current_price"  float                            NOT NULL,
-    "previous_price" float,
+    "current_price"  DECIMAL(10, 2)                   NOT NULL,
+    "previous_price" DECIMAL(10, 2),
     "code"           varchar(255),
     "description_id" int REFERENCES descriptions (id) NOT NULL,
     "category_id"    int REFERENCES categories (id)   NOT NULL

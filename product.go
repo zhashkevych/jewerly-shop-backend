@@ -1,5 +1,7 @@
 package jewerly
 
+import "errors"
+
 // Products
 type CreateProductInput struct {
 	Titles        MultiLanguageInput `json:"titles" binding:"required"`
@@ -8,7 +10,11 @@ type CreateProductInput struct {
 	PreviousPrice float32            `json:"previous_price"`
 	Code          string             `json:"code" binding:"required"`
 	ImageIds      []int              `json:"image_ids" binding:"required"`
-	CategoryId    int                `json:"category_id" binding:"required"`
+	CategoryId    Category           `json:"category_id" binding:"required"`
+}
+
+func (i CreateProductInput) Validate() error {
+	return i.CategoryId.Validate()
 }
 
 type MultiLanguageInput struct {
@@ -21,10 +27,29 @@ type MultiLanguageInput struct {
 
 type Category int
 
+func (c Category) Validate() error {
+	_, ok := Categories[c]
+	if !ok {
+		return errors.New("invalid category")
+	}
+
+	return nil
+}
+
 const (
 	CategoryRings = iota + 1
 	CategoryBracelets
 	CategoryPendants
 	CategoryEarring
 	CategoryNecklaces
+)
+
+var (
+	Categories = map[Category]bool{
+		CategoryRings:     true,
+		CategoryBracelets: true,
+		CategoryPendants:  true,
+		CategoryEarring:   true,
+		CategoryNecklaces: true,
+	}
 )

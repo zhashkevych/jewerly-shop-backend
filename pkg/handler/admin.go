@@ -16,6 +16,12 @@ func (h *Handler) createProduct(c *gin.Context) {
 		return
 	}
 
+	if err := inp.Validate(); err != nil {
+		logrus.Errorf("Failed to validate input body: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
+
 	if err := h.services.Product.Create(inp); err != nil {
 		logrus.Errorf("Failed to create new product: %s\n", err.Error())
 		newErrorResponse(c, getStatusCode(err), err)

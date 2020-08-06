@@ -5,23 +5,13 @@ import (
 	"io"
 )
 
+type UploadInput struct {
+	File        io.Reader
+	Name        string
+	Size        int64
+	ContentType string
+}
+
 type Storage interface {
-	Save(ctx context.Context, bucket string, object *StorageObject) error
-	Get(ctx context.Context, name, bucket string) (*StorageObject, error)
-	Delete(ctx context.Context, name, bucket string) error
-	CreateBucket(bucketName, location string) error
-}
-
-type StorageFile interface {
-	io.Reader
-	io.ReaderAt
-	io.Seeker
-	io.Closer
-}
-
-type StorageObject struct {
-	Name       string
-	Size       int64
-	Reader     io.Reader
-	RemoteFile StorageFile
+	Upload(ctx context.Context, input UploadInput) (string, error)
 }

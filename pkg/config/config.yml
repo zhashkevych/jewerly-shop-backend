@@ -13,4 +13,5 @@ db:
     host: "db"
 
 storage:
-  url: "storage:9000"
+  url: "localstack:4572"
+  bucket: "file-storage"

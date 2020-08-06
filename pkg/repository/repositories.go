@@ -18,6 +18,7 @@ type Product interface {
 	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
 	GetById(id int, language string) (jewerly.ProductResponse, error)
 	Delete(id int) error
+	CreateImage(url, altText string) (int, error)
 }
 
 type Repository struct {

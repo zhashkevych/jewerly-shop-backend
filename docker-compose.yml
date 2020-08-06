@@ -7,13 +7,13 @@ services:
     build: ./
     command: ./app
     environment:
-      - "STORAGE_ACCESS_KEY=minioadmin"
-      - "STORAGE_SECRET=minioadmin"
+      - "STORAGE_ACCESS_KEY=admin"
+      - "STORAGE_SECRET=secret"
     ports:
       - 8000:8000
     depends_on:
       - db
-      - storage
+      - localstack
 
   db:
     restart: always
@@ -23,14 +23,16 @@ services:
     ports:
       - 55432:5432
 
-  storage:
-      restart: always
-      image: minio/minio
-      ports:
-        - 9000:9000
-      volumes:
-        - ./.build/volumes/storages/minio:/data
-      environment:
-        MINIO_ACCESS_KEY: minioadmin
-        MINIO_SECRET_KEY: minioadmin
-      command: minio server /minio/data
+  localstack:
+    image: localstack/localstack:latest
+    container_name: "localstack"
+    ports:
+      - '4563-4599:4563-4599'
+      - '8055:8080'
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - './.localstack:/tmp/localstack'
+      - '/var/run/docker.sock:/var/run/docker.sock'

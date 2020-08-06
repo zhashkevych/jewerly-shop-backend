@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	_ "github.com/lib/pq"
-	"github.com/minio/minio-go/v6"
+	"github.com/minio/minio-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/zhashkevych/jewelry-shop-backend"
@@ -12,7 +12,6 @@ import (
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/service"
 	"github.com/zhashkevych/jewelry-shop-backend/storage"
-	miniostore "github.com/zhashkevych/jewelry-shop-backend/storage/minio"
 	"os"
 	"os/signal"
 	"syscall"
@@ -42,18 +41,19 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("Error occurred on storage initialization: %s\n", err.Error())
 	}
-
-	err = minioStorage.CreateBucket("images", "us-east-1")
-	if err != nil {
-		logrus.Fatalf("Error occurred on bucket creation: %s\n", err.Error())
-	}
+	//
+	//err = minioStorage.CreateBucket(viper.GetString("storage.bucket"), "us-east-1")
+	//if err != nil {
+	//	logrus.Fatalf("Error occurred on bucket creation: %s\n", err.Error())
+	//}
 
 	// Init Dependecies
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Dependencies{
-		Repos:      repos,
-		HashSalt:   viper.GetString("auth.hash_salt"),
-		SigningKey: []byte(viper.GetString("auth.signing_key")),
+		Repos:       repos,
+		HashSalt:    viper.GetString("auth.hash_salt"),
+		SigningKey:  []byte(viper.GetString("auth.signing_key")),
+		FileStorage: minioStorage,
 	})
 	handlers := handler.NewHandler(services)
 
@@ -92,5 +92,12 @@ func initStorage() (storage.Storage, error) {
 		return nil, err
 	}
 
-	return miniostore.NewStorage(client), nil
+	exists, err := client.BucketExists(viper.GetString("storage.bucket"))
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.Infof("Bucket %s exists: %v", viper.GetString("storage.bucket"), exists)
+
+	return storage.NewFileStorage(client, viper.GetString("storage.bucket"), viper.GetString("storage.url")), nil
 }

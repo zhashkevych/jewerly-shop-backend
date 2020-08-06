@@ -147,3 +147,11 @@ func (r *ProductRepository) GetById(id int, language string) (jewerly.ProductRes
 
 	return product, err
 }
+
+func (r *ProductRepository) CreateImage(url, altText string) (int, error) {
+	var id int
+
+	row := r.db.QueryRow(fmt.Sprintf("INSERT INTO %s (url, alt_text) values ($1, $2) RETURNING id", imagesTable), url, altText)
+	err := row.Scan(&id)
+	return id, err
+}

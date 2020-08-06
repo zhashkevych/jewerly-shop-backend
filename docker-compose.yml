@@ -7,13 +7,13 @@ services:
     build: ./
     command: ./app
     environment:
-      - "ACCESS_KEY=7JKYQUUFZAMCA7DYKRUT"
-      - "SECRET_KEY=w3Z8eDzHFPPm2r1jh1Q5QyhplFcO6ibVbjDD5CST+nQ"
+      - ACCESS_KEY=${ACCESS_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - 8000:8000
     depends_on:
       - db
-#      - localstack
 
   db:
     restart: always
@@ -22,17 +22,3 @@ services:
       - ./.build/volumes/databases/postgres/data:/var/lib/postgresql/data
     ports:
       - 55432:5432
-#
-#  localstack:
-#    image: localstack/localstack:latest
-#    container_name: "localstack"
-#    ports:
-#      - '4563-4599:4563-4599'
-#      - '8055:8080'
-#    environment:
-#      - SERVICES=s3
-#      - DEBUG=1
-#      - DATA_DIR=/tmp/localstack/data
-#    volumes:
-#      - './.localstack:/tmp/localstack'
-#      - '/var/run/docker.sock:/var/run/docker.sock'

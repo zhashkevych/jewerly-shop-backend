@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+ 
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: pull, build & run
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSHKEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+            cd ${{ secrets.PROJECTPATH }}
+            git checkout master && git pull origin master
+            export ACCESS_KEY=${{ secrets.ACCESS_KEY }}
+            export SECRET_KEY=${{ secrets.SECRET_KEY }}
+            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            make run-deploy

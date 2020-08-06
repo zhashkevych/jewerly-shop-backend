@@ -5,7 +5,6 @@ services:
     image: jewelry-shop
     container_name: "jewelry-shop"
     build: ./
-    command: ./app
     environment:
       - ACCESS_KEY=${ACCESS_KEY}
       - SECRET_KEY=${SECRET_KEY}

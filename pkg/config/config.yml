@@ -13,5 +13,5 @@ db:
     host: "db"
 
 storage:
-  url: "localstack:4572"
-  bucket: "file-storage"
+  url: "ams3.digitaloceanspaces.com"
+  bucket: "jewerly"

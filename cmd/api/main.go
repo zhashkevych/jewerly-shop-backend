@@ -31,7 +31,7 @@ func main() {
 		Username: viper.GetString("db.postgres.username"),
 		DBName:   viper.GetString("db.postgres.dbname"),
 		SSLMode:  viper.GetString("db.postgres.sslmode"),
-		Password: viper.GetString("db.postgres.password"),
+		Password: os.Getenv("POSTGRES_PASSWORD"),
 	})
 	if err != nil {
 		logrus.Fatalf("Error occurred on db initialization: %s\n", err.Error())
@@ -41,11 +41,6 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("Error occurred on storage initialization: %s\n", err.Error())
 	}
-	//
-	//err = minioStorage.CreateBucket(viper.GetString("storage.bucket"), "us-east-1")
-	//if err != nil {
-	//	logrus.Fatalf("Error occurred on bucket creation: %s\n", err.Error())
-	//}
 
 	// Init Dependecies
 	repos := repository.NewRepository(db)
@@ -86,8 +81,8 @@ func main() {
 func initStorage() (storage.Storage, error) {
 	client, err := minio.New(
 		viper.GetString("storage.url"),
-		os.Getenv("STORAGE_ACCESS_KEY"),
-		os.Getenv("STORAGE_SECRET"), false)
+		os.Getenv("ACCESS_KEY"),
+		os.Getenv("SECRET_KEY"), false)
 	if err != nil {
 		return nil, err
 	}
@@ -99,5 +94,8 @@ func initStorage() (storage.Storage, error) {
 
 	logrus.Infof("Bucket %s exists: %v", viper.GetString("storage.bucket"), exists)
 
-	return storage.NewFileStorage(client, viper.GetString("storage.bucket"), viper.GetString("storage.url")), nil
+	return storage.NewFileStorage(client,
+		viper.GetString("storage.bucket"),
+		viper.GetString("storage.url"),
+		os.Getenv("HOST")), nil
 }

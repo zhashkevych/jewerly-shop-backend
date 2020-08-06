@@ -1,7 +1,3 @@
 db:
   postgres:
-    username: "postgres"
-    dbname: "jewelryshop"
-    sslmode: "disable"
-    port: "5432"
     host: "localhost"

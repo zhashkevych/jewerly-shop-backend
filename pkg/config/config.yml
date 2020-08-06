@@ -7,7 +7,7 @@ auth:
 db:
   postgres:
     username: "postgres"
-    dbname: "jewelryshop"
+    dbname: "postgres"
     sslmode: "disable"
     port: "5432"
     host: "db"

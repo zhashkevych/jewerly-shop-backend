@@ -16,10 +16,10 @@ deploy:
 	./deploy.sh
 
 migrate:
-	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/jewelryshop?sslmode=disable up
+	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/postgres?sslmode=disable up
 
 migrate-down:
-	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/jewelryshop?sslmode=disable down 1
+	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/postgres?sslmode=disable down 1
 
 migrate-drop:
-	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/jewelryshop?sslmode=disable drop
+	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/postgres?sslmode=disable drop

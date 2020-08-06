@@ -155,3 +155,12 @@ func (r *ProductRepository) CreateImage(url, altText string) (int, error) {
 	err := row.Scan(&id)
 	return id, err
 }
+
+func (r *ProductRepository) GetProductImages(productId int) ([]jewerly.Image, error) {
+	var images []jewerly.Image
+
+	err := r.db.Select(&images, fmt.Sprintf("SELECT i.url, i.alt_text FROM %s i JOIN %s pi ON pi.image_id = i.id WHERE pi.product_id = $1",
+		imagesTable, productImagesTable), productId)
+
+	return images, err
+}

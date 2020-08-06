@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/sirupsen/logrus"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/storage"
@@ -27,8 +28,24 @@ func (s *ProductService) Create(product jewerly.CreateProductInput) error {
 	return s.repo.Create(product)
 }
 
+// todo: add total calculation, additional filters & pagination
 func (s *ProductService) GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error) {
-	return s.repo.GetAll(filters)
+	productList, err := s.repo.GetAll(filters)
+	if err != nil {
+		return productList, err
+	}
+
+	for i, product := range productList.Products {
+		images, err := s.repo.GetProductImages(product.Id)
+		if err != nil {
+			logrus.Errorf("failed to get images for product id %d: %s", product.Id, err.Error())
+			continue
+		}
+
+		productList.Products[i].Images = images
+	}
+
+	return productList, nil
 }
 
 func (s *ProductService) Delete(id int) error {
@@ -36,7 +53,20 @@ func (s *ProductService) Delete(id int) error {
 }
 
 func (s *ProductService) GetById(id int, language string) (jewerly.ProductResponse, error) {
-	return s.repo.GetById(id, language)
+	product, err := s.repo.GetById(id, language)
+	if err != nil {
+		return product, err
+	}
+
+	images, err := s.repo.GetProductImages(product.Id)
+	if err != nil {
+		logrus.Errorf("failed to get images for product id %d: %s", product.Id, err.Error())
+		return product, err
+	}
+
+	product.Images = images
+
+	return product, nil
 }
 
 func (s *ProductService) UploadImage(ctx context.Context, file io.Reader, size int64, contentType string) (int, error) {

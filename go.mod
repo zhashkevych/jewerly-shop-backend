@@ -30,5 +30,6 @@ require (
 	golang.org/x/sys v0.0.0-20200806060901-a37d78b92225 // indirect
 	golang.org/x/text v0.3.3 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
+	gopkg.in/guregu/null.v3 v3.5.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
 )

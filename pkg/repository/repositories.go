@@ -19,6 +19,7 @@ type Product interface {
 	GetById(id int, language string) (jewerly.ProductResponse, error)
 	Delete(id int) error
 	CreateImage(url, altText string) (int, error)
+	GetProductImages(productId int) ([]jewerly.Image, error)
 }
 
 type Repository struct {

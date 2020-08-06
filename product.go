@@ -1,6 +1,9 @@
 package jewerly
 
-import "errors"
+import (
+	"errors"
+	"gopkg.in/guregu/null.v3"
+)
 
 // Products
 
@@ -32,20 +35,20 @@ type GetAllProductsFilters struct {
 
 // Responses
 type ProductResponse struct {
-	Id            int      `json:"id" db:"id"`
-	Title         string   `json:"title" db:"title"`
-	Description   string   `json:"description" db:"description"`
-	Material      string   `json:"material" db:"material"`
-	CurrentPrice  float32  `json:"current_price" db:"current_price"`
-	PreviousPrice float32  `json:"previous_price" db:"previous_price"`
-	Code          string   `json:"code" db:"code"`
-	Images        []Image  `json:"images"`
-	CategoryId    Category `json:"category_id" db:"category_id"`
+	Id            int         `json:"id" db:"id"`
+	Title         string      `json:"title" db:"title"`
+	Description   string      `json:"description" db:"description"`
+	Material      string      `json:"material" db:"material"`
+	CurrentPrice  float32     `json:"current_price" db:"current_price"`
+	PreviousPrice null.Float  `json:"previous_price" db:"previous_price"`
+	Code          null.String `json:"code" db:"code"`
+	Images        []Image     `json:"images"`
+	CategoryId    Category    `json:"category_id" db:"category_id"`
 }
 
 type Image struct {
-	URL     string `json:"url"`
-	AltText string `json:"alt_text"`
+	URL     string      `json:"url" db:"url"`
+	AltText null.String `json:"alt_text" db:"alt_text"`
 }
 
 type ProductsList struct {

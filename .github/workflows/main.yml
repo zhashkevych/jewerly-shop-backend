@@ -17,8 +17,8 @@ jobs:
         port: ${{ secrets.PORT }}
         script: |
             cd ${{ secrets.PROJECTPATH }}
-            git checkout master && git pull origin master
+            git pull origin master
             export ACCESS_KEY=${{ secrets.ACCESS_KEY }}
             export SECRET_KEY=${{ secrets.SECRET_KEY }}
             export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
-            make run-deploy
+            make deploy

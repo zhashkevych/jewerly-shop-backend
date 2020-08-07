@@ -16,9 +16,7 @@ jobs:
         key: ${{ secrets.SSHKEY }}
         port: ${{ secrets.PORT }}
         script: |
+            source ~/.bash_profile
             cd ${{ secrets.PROJECTPATH }}
             git pull origin master
-            export ACCESS_KEY=${{ secrets.ACCESS_KEY }}
-            export SECRET_KEY=${{ secrets.SECRET_KEY }}
-            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             make deploy

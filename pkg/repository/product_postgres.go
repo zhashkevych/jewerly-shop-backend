@@ -108,10 +108,33 @@ func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewer
 							JOIN %[2]s t on t.id = p.title_id
 							JOIN %[3]s d on d.id = p.description_id
 							JOIN %[4]s m on m.id = p.material_id`, productsTable, titlesTable, descriptionsTable, materialsTable)
-	limitQuery := " OFFSET $1 LIMIT $2"
 
-	err := r.db.Select(&products.Products, fmt.Sprintf("%s %s %s", selectQuery, fromQuery, limitQuery), filters.Offset, filters.Limit)
+	// build where query
+	var whereQuery string
 
+	argId := 1
+	args := make([]interface{}, 0)
+	if filters.CategoryId.Valid {
+		whereQuery = fmt.Sprintf("WHERE p.category_id=$%d", argId)
+		args = append(args, filters.CategoryId)
+		argId++
+	}
+
+	args = append(args, filters.Offset, filters.Limit)
+	limitQuery := fmt.Sprintf(" OFFSET $%d LIMIT $%d", argId, argId+1)
+
+	// BUILD FINAL QUERY
+	var query string
+	if whereQuery == "" {
+		query = fmt.Sprintf("%s %s %s", selectQuery, fromQuery, limitQuery)
+	} else {
+		query = fmt.Sprintf("%s %s %s %s", selectQuery, fromQuery, whereQuery, limitQuery)
+	}
+
+	// select products
+	err := r.db.Select(&products.Products, query, args...)
+
+	// total count
 	err = r.db.Get(&products.Total, fmt.Sprintf("SELECT count(*) %s", fromQuery))
 
 	return products, err

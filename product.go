@@ -30,9 +30,10 @@ type MultiLanguageInput struct {
 }
 
 type GetAllProductsFilters struct {
-	Language string
-	Offset   int
-	Limit    int
+	Language   string
+	Offset     int
+	Limit      int
+	CategoryId null.Int
 }
 
 // Responses

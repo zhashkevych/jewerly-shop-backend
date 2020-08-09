@@ -9,8 +9,6 @@ type User interface {
 	Create(user jewerly.User) error
 	GetByCredentials(email, passwordHash string) (jewerly.User, error)
 	GetById(id int64) (jewerly.User, error)
-	//GetAll(id int64) (jewerly.User, error)
-	//Update(id int64, newUser jewerly.User) error
 }
 
 type Admin interface {

@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
+	"gopkg.in/guregu/null.v3"
 	"strconv"
 )
 
@@ -28,6 +29,11 @@ func getProductFilters(c *gin.Context) jewerly.GetAllProductsFilters {
 		filters.Offset = defaultOffset
 	} else {
 		filters.Offset = offset
+	}
+
+	categoryId, err := strconv.Atoi(c.Query("category"))
+	if err == nil {
+		filters.CategoryId = null.NewInt(int64(categoryId), true)
 	}
 
 	return filters

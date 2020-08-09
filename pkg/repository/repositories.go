@@ -13,6 +13,10 @@ type User interface {
 	//Update(id int64, newUser jewerly.User) error
 }
 
+type Admin interface {
+	Authorize(email, passwordHash string) error
+}
+
 type Product interface {
 	Create(product jewerly.CreateProductInput) error
 	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
@@ -22,14 +26,21 @@ type Product interface {
 	GetProductImages(productId int) ([]jewerly.Image, error)
 }
 
+type Order interface {
+	Create(userId int64, productIds []int) error
+}
+
 type Repository struct {
 	User
+	Admin
 	Product
+	Order
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		User:    NewUserRepository(db),
+		Admin:   NewAdminRepository(db),
 		Product: NewProductRepository(db),
 	}
 }

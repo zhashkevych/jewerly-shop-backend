@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/service"
 	"net/http"
@@ -24,10 +25,17 @@ func (h *Handler) Init() *gin.Engine {
 		gin.Logger(),
 	)
 
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowHeaders = append(config.AllowHeaders, "Access-Control-Request-Headers", "Authorization")
+	router.Use(cors.New(config))
+
 	// Init router
 	router.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")
 	})
+
+	//adminRouter := router.Group("/admin", h.adminIdentity)
 
 	h.initAuthRoutes(router)
 	h.initAPIRoutes(router)
@@ -41,6 +49,7 @@ func (h *Handler) initAuthRoutes(router *gin.Engine) {
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
+		auth.POST("/admin/sign-in", h.adminSignIn)
 	}
 }
 
@@ -64,7 +73,7 @@ func (h *Handler) initAPIRoutes(router *gin.Engine) {
 }
 
 func (h *Handler) initAdminRoutes(router *gin.Engine) {
-	admin := router.Group("/admin", h.adminIdentity)
+	admin := router.Group("/admin")
 	{
 		// product routes
 		admin.POST("/products", h.createProduct)

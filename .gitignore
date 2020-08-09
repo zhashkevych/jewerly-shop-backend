@@ -2,4 +2,3 @@
 .idea
 .bin
 .localstack
-.env

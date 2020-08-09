@@ -22,6 +22,11 @@ type Auth interface {
 	ParseToken(token string) (jewerly.User, error)
 }
 
+type Admin interface {
+	SignIn(email, password string) (string, error)
+	ParseToken(token string) error
+}
+
 // Users
 type User interface {
 	GetById(id int64) (jewerly.User, error)
@@ -35,6 +40,10 @@ type Product interface {
 	UploadImage(ctx context.Context, file io.Reader, size int64, contentType string) (int, error)
 }
 
+type Order interface {
+	Create(userId int64, productIds []int) error
+}
+
 // Services Interface, Constructor & Dependencies
 type Dependencies struct {
 	Repos       *repository.Repository
@@ -45,13 +54,16 @@ type Dependencies struct {
 
 type Services struct {
 	Auth
+	Admin
 	User
 	Product
+	Order
 }
 
 func NewServices(deps Dependencies) *Services {
 	return &Services{
 		Auth:    NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
+		Admin:   NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
 		Product: NewProductService(deps.Repos.Product, deps.FileStorage),
 	}
 }

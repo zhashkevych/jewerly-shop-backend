@@ -20,6 +20,26 @@ var (
 	}
 )
 
+func (h *Handler) adminSignIn(c *gin.Context) {
+	var inp signInInput
+	if err := c.ShouldBindJSON(&inp); err != nil {
+		logrus.Errorf("Failed to bind signUp structure: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
+
+	token, err := h.services.Admin.SignIn(inp.Email, inp.Password)
+	if err != nil {
+		logrus.Errorf("Failed to create user: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, signInResponse{
+		Token: token,
+	})
+}
+
 // Products Handlers
 func (h *Handler) createProduct(c *gin.Context) {
 	var inp jewerly.CreateProductInput

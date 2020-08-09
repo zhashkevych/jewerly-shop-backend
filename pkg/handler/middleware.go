@@ -18,8 +18,8 @@ func (h *Handler) userIdentity(c *gin.Context) {
 	headerParts := strings.Split(header, " ")
 
 	if len(headerParts) != 2 {
-		newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid auth header"))
-		return
+		// User Unauthorized
+		c.Next()
 	}
 
 	if headerParts[1] == "" {
@@ -36,27 +36,28 @@ func (h *Handler) userIdentity(c *gin.Context) {
 	c.Set(UserCtx, user)
 }
 
-// todo: implement adminIdentity
 func (h *Handler) adminIdentity(c *gin.Context) {
-	//header := c.Request.Header.Get(AccessToken)
-	//
-	//headerParts := strings.Split(header, " ")
-	//
-	//if len(headerParts) != 2 {
-	//	newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid auth header"))
-	//	return
-	//}
-	//
-	//if headerParts[1] == "" {
-	//	newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid token"))
-	//	return
-	//}
-	//
-	//user, err := h.services.Auth.ParseToken(headerParts[1])
-	//if err != nil {
-	//	newErrorResponse(c, http.StatusUnauthorized, err)
-	//	return
-	//}
-	//
-	//c.Set(UserCtx, user)
+	header := c.Request.Header.Get(AccessToken)
+
+	if header == "" {
+		newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid auth header"))
+		return
+	}
+
+	headerParts := strings.Split(header, " ")
+	if len(headerParts) != 2 {
+		newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid auth header"))
+		return
+	}
+
+	if headerParts[1] == "" {
+		newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid token"))
+		return
+	}
+
+	err := h.services.Admin.ParseToken(headerParts[1])
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err)
+		return
+	}
 }

@@ -34,7 +34,9 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+	})
 }
 
 type signInInput struct {

@@ -56,12 +56,16 @@ func (a *Authorization) SignIn(email, password string) (string, error) {
 }
 
 func (a *Authorization) ParseToken(token string) (jewerly.User, error) {
-	t, _ := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
+	t, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return a.signingKey, nil
 	})
+
+	if err != nil {
+		return jewerly.User{}, err
+	}
 
 	claims, ok := t.Claims.(jwt.MapClaims)
 	if !ok {

@@ -16,7 +16,7 @@ func NewAdminRepository(db *sqlx.DB) *AdminRepository {
 }
 
 func (r *AdminRepository) Authorize(email, passwordHash string) error {
-	query := fmt.Sprintf("SELECT * FROM %s WHERE email=$1 AND password_hash=$2", adminUsersTable)
+	query := fmt.Sprintf("SELECT * FROM %s WHERE login=$1 AND password_hash=$2", adminUsersTable)
 	_, err := r.db.Exec(query, email, passwordHash)
 
 	return err

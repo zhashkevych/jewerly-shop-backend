@@ -20,15 +20,20 @@ var (
 	}
 )
 
+type adminSignInInput struct {
+	Login    string `json:"login" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 func (h *Handler) adminSignIn(c *gin.Context) {
-	var inp signInInput
+	var inp adminSignInInput
 	if err := c.ShouldBindJSON(&inp); err != nil {
 		logrus.Errorf("Failed to bind signUp structure: %s\n", err.Error())
 		newErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
-	token, err := h.services.Admin.SignIn(inp.Email, inp.Password)
+	token, err := h.services.Admin.SignIn(inp.Login, inp.Password)
 	if err != nil {
 		logrus.Errorf("Failed to create user: %s\n", err.Error())
 		newErrorResponse(c, http.StatusBadRequest, err)
@@ -86,11 +91,7 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 }
 
 func (h *Handler) getAllProducts(c *gin.Context) {
-	language := jewerly.GetLanguageFromQuery(c.Query("language"))
-
-	products, err := h.services.Product.GetAll(jewerly.GetAllProductsFilters{
-		Language: language,
-	})
+	products, err := h.services.Product.GetAll(getProductFilters(c))
 	if err != nil {
 		logrus.Errorf("Failed to get products: %s\n", err.Error())
 		newErrorResponse(c, getStatusCode(err), err)

@@ -26,7 +26,7 @@ func getStatusCode(err error) int {
 }
 
 func newErrorResponse(c *gin.Context, statusCode int, err error) {
-	c.JSON(statusCode, errorResponse{
+	c.AbortWithStatusJSON(statusCode, errorResponse{
 		Error: err.Error(),
 	})
 }

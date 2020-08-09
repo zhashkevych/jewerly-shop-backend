@@ -15,11 +15,17 @@ const (
 func (h *Handler) userIdentity(c *gin.Context) {
 	header := c.Request.Header.Get(AccessToken)
 
+	// Not Authorized
+	if header == "" {
+		c.Next()
+		return
+	}
+
 	headerParts := strings.Split(header, " ")
 
 	if len(headerParts) != 2 {
-		// User Unauthorized
-		c.Next()
+		newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid auth header"))
+		return
 	}
 
 	if headerParts[1] == "" {
@@ -40,7 +46,7 @@ func (h *Handler) adminIdentity(c *gin.Context) {
 	header := c.Request.Header.Get(AccessToken)
 
 	if header == "" {
-		newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid auth header"))
+		newErrorResponse(c, http.StatusUnauthorized, errors.New("empty auth header"))
 		return
 	}
 

@@ -18,8 +18,8 @@ func NewAdminService(repo repository.Admin, salt string, signingKey []byte) *Adm
 	return &AdminService{repo: repo, salt: salt, signingKey: signingKey}
 }
 
-func (s *AdminService) SignIn(email, password string) (string, error) {
-	err := s.repo.Authorize(email, s.getPasswordHash(password))
+func (s *AdminService) SignIn(login, password string) (string, error) {
+	err := s.repo.Authorize(login, s.getPasswordHash(password))
 	if err != nil {
 		return "", err
 	}
@@ -33,12 +33,16 @@ func (s *AdminService) SignIn(email, password string) (string, error) {
 }
 
 func (s *AdminService) ParseToken(token string) error {
-	t, _ := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
+	t, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return s.signingKey, nil
 	})
+
+	if err != nil {
+		return err
+	}
 
 	_, ok := t.Claims.(jwt.MapClaims)
 	if !ok {

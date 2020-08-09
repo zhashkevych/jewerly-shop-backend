@@ -14,7 +14,7 @@ type User interface {
 }
 
 type Admin interface {
-	Authorize(email, passwordHash string) error
+	Authorize(login, passwordHash string) error
 }
 
 type Product interface {

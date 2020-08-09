@@ -23,7 +23,7 @@ type Auth interface {
 }
 
 type Admin interface {
-	SignIn(email, password string) (string, error)
+	SignIn(login, password string) (string, error)
 	ParseToken(token string) error
 }
 

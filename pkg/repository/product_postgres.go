@@ -102,12 +102,17 @@ func multiLanguageInsertQuery(table string, input jewerly.MultiLanguageInput) (s
 func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error) {
 	var products jewerly.ProductsList
 
-	query := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, p.current_price,
-							p.previous_price, p.code, p.category_id FROM %[2]s p
-							JOIN %[3]s t on t.id = p.title_id
-							JOIN %[4]s d on d.id = p.description_id
-							JOIN %[5]s m on m.id = p.material_id`, filters.Language, productsTable, titlesTable, descriptionsTable, materialsTable)
-	err := r.db.Select(&products.Products, query)
+	selectQuery := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, p.current_price,
+							p.previous_price, p.code, p.category_id`, filters.Language)
+	fromQuery := fmt.Sprintf(` FROM %[1]s p
+							JOIN %[2]s t on t.id = p.title_id
+							JOIN %[3]s d on d.id = p.description_id
+							JOIN %[4]s m on m.id = p.material_id`, productsTable, titlesTable, descriptionsTable, materialsTable)
+	limitQuery := " OFFSET $1 LIMIT $2"
+
+	err := r.db.Select(&products.Products, fmt.Sprintf("%s %s %s", selectQuery, fromQuery, limitQuery), filters.Offset, filters.Limit)
+
+	err = r.db.Get(&products.Total, fmt.Sprintf("SELECT count(*) %s", fromQuery))
 
 	return products, err
 }

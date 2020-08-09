@@ -35,8 +35,6 @@ func (h *Handler) Init() *gin.Engine {
 		c.String(http.StatusOK, "pong")
 	})
 
-	//adminRouter := router.Group("/admin", h.adminIdentity)
-
 	h.initAuthRoutes(router)
 	h.initAPIRoutes(router)
 	h.initAdminRoutes(router)
@@ -73,7 +71,7 @@ func (h *Handler) initAPIRoutes(router *gin.Engine) {
 }
 
 func (h *Handler) initAdminRoutes(router *gin.Engine) {
-	admin := router.Group("/admin")
+	admin := router.Group("/admin", h.adminIdentity)
 	{
 		// product routes
 		admin.POST("/products", h.createProduct)

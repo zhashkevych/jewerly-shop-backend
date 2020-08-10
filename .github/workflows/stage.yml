@@ -18,5 +18,4 @@ jobs:
           script: |
             source ~/.bash_profile
             cd ${{ secrets.PROJECTPATH }}
-            git pull origin master
             make deploy-stage

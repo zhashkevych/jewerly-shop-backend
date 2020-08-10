@@ -18,4 +18,4 @@ jobs:
           script: |
             source ~/.bash_profile
             cd ${{ secrets.PROJECTPATH }}
-            make deploy-stage
+            chmod +x ./deploy-stage.sh && ./deploy-stage.sh

@@ -1,5 +1,3 @@
-.PHONY: deploy deploy-stage
-
 build:
 	go mod download && CGO_ENABLED=0 GOOS=linux go build -o ./.bin/app ./cmd/api/main.go
 
@@ -8,12 +6,6 @@ run: build
 
 create-migration:
 	migrate create -ext sql -dir schema/ -seq $(NAME)
-
-deploy:
-	chmod +x ./deploy.sh && ./deploy.sh
-
-deploy-stage:
-	chmod +x ./deploy-stage.sh && ./deploy-stage.sh
 
 migrate:
 	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/postgres?sslmode=disable up

@@ -9,6 +9,7 @@ import (
 // TODO: Image Compression
 // TODO: Order Placement
 // TODO: Email Sending
+// TODO: Payment System
 
 // Products
 

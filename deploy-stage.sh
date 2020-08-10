@@ -1,8 +1,4 @@
-if [ ! "$(git status | grep 'develop')" ]; then
-    git checkout develop
-fi
-
-git pull origin develop
+git checkout -- . && git checkout develop && git pull origin develop
 
 export HOST=stage
 docker image build -t jewerly-api:0.1 -f ./deploy/Dockerfile .

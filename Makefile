@@ -10,10 +10,15 @@ create-migration:
 	migrate create -ext sql -dir schema/ -seq $(NAME)
 
 deploy:
-	export HOST=prod
 	docker image build -t jewerly-api:0.1 -f ./deploy/Dockerfile .
 	chmod +x ./deploy.sh
 	./deploy.sh
+
+deploy-stage:
+	export HOST=stage
+	docker image build -t jewerly-api:0.1 -f ./deploy/Dockerfile .
+	chmod +x ./deploy-stage.sh
+	./deploy-stage.sh
 
 migrate:
 	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/postgres?sslmode=disable up

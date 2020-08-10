@@ -1,3 +1,0 @@
-db:
-  postgres:
-    host: "db"

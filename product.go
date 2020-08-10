@@ -5,6 +5,11 @@ import (
 	"gopkg.in/guregu/null.v3"
 )
 
+// TODO: In Stock
+// TODO: Image Compression
+// TODO: Order Placement
+// TODO: Email Sending
+
 // Products
 
 // Inputs

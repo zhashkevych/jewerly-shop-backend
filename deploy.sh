@@ -1,8 +1,4 @@
-if [ ! "$(git status | grep 'master')" ]; then
-    git checkout master
-fi
-
-git pull origin master
+git checkout -- . && git checkout master && git pull origin master
 
 docker image build -t jewerly-api:0.1 -f ./deploy/Dockerfile .
 

@@ -5,7 +5,6 @@ import (
 	"gopkg.in/guregu/null.v3"
 )
 
-// TODO: In Stock
 // TODO: Image Compression
 // TODO: Order Placement
 // TODO: Email Sending
@@ -52,6 +51,7 @@ type ProductResponse struct {
 	Code          null.String `json:"code" db:"code"`
 	Images        []Image     `json:"images"`
 	CategoryId    Category    `json:"category_id" db:"category_id"`
+	InStock       bool        `json:"in_stock" db:"in_stock"`
 }
 
 type Image struct {

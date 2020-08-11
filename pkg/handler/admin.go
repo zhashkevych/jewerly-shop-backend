@@ -70,7 +70,33 @@ func (h *Handler) createProduct(c *gin.Context) {
 }
 
 func (h *Handler) updateProduct(c *gin.Context) {
+	var inp jewerly.UpdateProductInput
+	if err := c.ShouldBindJSON(&inp); err != nil {
+		logrus.Errorf("Failed to bind createProductInput structure: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
 
+	if err := inp.Validate(); err != nil {
+		logrus.Errorf("Failed to validate input body: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		logrus.Errorf("Failed to parse id from query: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := h.services.Product.Update(id, inp); err != nil {
+		logrus.Errorf("Failed to create new product: %s\n", err.Error())
+		newErrorResponse(c, getStatusCode(err), err)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func (h *Handler) deleteProduct(c *gin.Context) {

@@ -5,6 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
+	"strings"
 )
 
 type ProductRepository struct {
@@ -185,20 +186,93 @@ func (r *ProductRepository) GetProductImages(productId int) ([]jewerly.Image, er
 }
 
 func (r *ProductRepository) Update(id int, inp jewerly.UpdateProductInput) error {
-	//tx, err := r.db.Begin()
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//if inp.Material != nil {
-	//	tx.Exec(fmt.Sprintf("UPDATE %s SET "))
-	//}
-	return nil
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	if inp.Material != nil {
+		query, args := multiLanguageUpdateQuery(materialsTable, *inp.Material, id)
+
+		if _, err := r.db.Exec(query, args...); err != nil {
+			logrus.Errorf("[Update Product] update materials error: %s", err.Error())
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if inp.Titles != nil {
+		query, args := multiLanguageUpdateQuery(titlesTable, *inp.Titles, id)
+
+		if _, err := r.db.Exec(query, args...); err != nil {
+			logrus.Errorf("[Update Product] update titles error: %s", err.Error())
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if inp.Descriptions != nil {
+		query, args := multiLanguageUpdateQuery(descriptionsTable, *inp.Descriptions, id)
+
+		if _, err := r.db.Exec(query, args...); err != nil {
+			logrus.Errorf("[Update Product] update titles error: %s", err.Error())
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// update product query
+	argId := 1
+	args := make([]interface{}, 0)
+	updateValues := make([]string, 0)
+
+	if inp.CurrentPrice.Valid {
+		updateValues = append(updateValues, fmt.Sprintf("current_price=$%d", argId))
+		args = append(args, inp.CurrentPrice.Float64)
+		argId++
+	}
+
+	if inp.PreviousPrice.Valid {
+		updateValues = append(updateValues, fmt.Sprintf("previous_price=$%d", argId))
+		args = append(args, inp.PreviousPrice.Float64)
+		argId++
+	}
+
+	if inp.Code.Valid {
+		updateValues = append(updateValues, fmt.Sprintf("code=$%d", argId))
+		args = append(args, inp.Code.String)
+		argId++
+	}
+
+	if inp.InStock.Valid {
+		updateValues = append(updateValues, fmt.Sprintf("in_stock=$%d", argId))
+		args = append(args, inp.InStock.Bool)
+		argId++
+	}
+
+	if inp.CategoryId != nil {
+		updateValues = append(updateValues, fmt.Sprintf("category_id=$%d", argId))
+		args = append(args, *inp.CategoryId)
+		argId++
+	}
+
+	updateProductQuery := fmt.Sprintf("UPDATE %s SET %s WHERE id = $%d", productsTable, strings.Join(updateValues, ", "), argId)
+	args = append(args, id)
+	argId++
+
+	_, err = r.db.Exec(updateProductQuery, args...)
+	if err != nil {
+		logrus.Errorf("[Update Product] update product error: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
 }
 
-func multiLanguageUpdateQuery(table string, input jewerly.MultiLanguageInput) (string, []interface{}) {
-	query := fmt.Sprintf("UPDATE %s SET english=$1, russian=$2, ukrainian=$3 JOIN products WHERE products.mate ", table)
-	args := []interface{}{input.English, input.Russian, input.Ukrainian}
+func multiLanguageUpdateQuery(table string, input jewerly.MultiLanguageInput, productId int) (string, []interface{}) {
+	query := fmt.Sprintf("UPDATE %s SET english=$1, russian=$2, ukrainian=$3 WHERE product_id = $4", table)
+	args := []interface{}{input.English, input.Russian, input.Ukrainian, productId}
 
 	return query, args
 }

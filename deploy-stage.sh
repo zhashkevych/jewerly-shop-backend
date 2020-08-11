@@ -8,4 +8,4 @@ if [ "$(docker ps -q -f name=jewerly-api-stage)" ]; then
     fi
 fi
 
-docker run --env_file ../.env.prod --rm -d --publish 8001:8000 --name jewerly-api-stage --link=jewerly-db:db jewerly-api:0.1
+docker run --env-file ../.env.prod --rm -d --publish 8001:8000 --name jewerly-api-stage --link=jewerly-db:db jewerly-api:0.1

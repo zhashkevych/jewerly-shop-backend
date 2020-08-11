@@ -1,0 +1,2 @@
+payments:
+  endpoint: "https://api.greeninvoice.co.il/api/v1/"

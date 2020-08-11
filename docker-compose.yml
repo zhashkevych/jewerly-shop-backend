@@ -9,6 +9,8 @@ services:
       - ACCESS_KEY=${ACCESS_KEY}
       - SECRET_KEY=${SECRET_KEY}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PAYMENT_API_KEY=${PAYMENT_API_KEY}
+      - PAYMENT_API_SECRET=${PAYMENT_API_SECRET}
     ports:
       - 8000:8000
     depends_on:

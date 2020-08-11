@@ -15,3 +15,6 @@ db:
 storage:
   url: "ams3.digitaloceanspaces.com"
   bucket: "jewerly"
+
+payments:
+  endpoint: "https://sandbox.d.greeninvoice.co.il/api/v1/"

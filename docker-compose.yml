@@ -5,12 +5,8 @@ services:
     image: jewelry-shop
     container_name: "jewelry-shop"
     build: ./
-    environment:
-      - ACCESS_KEY=${ACCESS_KEY}
-      - SECRET_KEY=${SECRET_KEY}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - PAYMENT_API_KEY=${PAYMENT_API_KEY}
-      - PAYMENT_API_SECRET=${PAYMENT_API_SECRET}
+    env_file:
+      - .env
     ports:
       - 8000:8000
     depends_on:

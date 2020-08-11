@@ -19,6 +19,7 @@ type Product interface {
 	Create(product jewerly.CreateProductInput) error
 	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
 	GetById(id int, language string) (jewerly.ProductResponse, error)
+	Update(id int, inp jewerly.UpdateProductInput) error
 	Delete(id int) error
 	CreateImage(url, altText string) (int, error)
 	GetProductImages(productId int) ([]jewerly.Image, error)

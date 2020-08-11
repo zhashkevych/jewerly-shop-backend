@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
+	"github.com/zhashkevych/jewelry-shop-backend/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/storage"
 	"io"
@@ -36,6 +37,7 @@ type Product interface {
 	Create(jewerly.CreateProductInput) error
 	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
 	GetById(id int, language string) (jewerly.ProductResponse, error)
+	Update(id int, inp jewerly.UpdateProductInput) error
 	Delete(id int) error
 	UploadImage(ctx context.Context, file io.Reader, size int64, contentType string) (int, error)
 }
@@ -46,10 +48,11 @@ type Order interface {
 
 // Services Interface, Constructor & Dependencies
 type Dependencies struct {
-	Repos       *repository.Repository
-	FileStorage storage.Storage
-	HashSalt    string
-	SigningKey  []byte
+	Repos           *repository.Repository
+	FileStorage     storage.Storage
+	HashSalt        string
+	SigningKey      []byte
+	PaymentProvider payment.Provider
 }
 
 type Services struct {

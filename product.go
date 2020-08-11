@@ -9,8 +9,6 @@ import (
 // TODO: Order Placement
 // TODO: Email Sending
 
-// Products
-
 // Inputs
 type CreateProductInput struct {
 	Titles        MultiLanguageInput `json:"titles" binding:"required"`
@@ -24,6 +22,21 @@ type CreateProductInput struct {
 }
 
 func (i CreateProductInput) Validate() error {
+	return i.CategoryId.Validate()
+}
+
+type UpdateProductInput struct {
+	Titles        *MultiLanguageInput `json:"titles"`
+	Descriptions  *MultiLanguageInput `json:"descriptions"`
+	Material      *MultiLanguageInput `json:"materials"`
+	CurrentPrice  null.Float          `json:"current_price"`
+	PreviousPrice null.Float          `json:"previous_price"`
+	Code          null.String         `json:"code"`
+	ImageIds      []int               `json:"image_ids"`
+	CategoryId    *Category           `json:"category_id"`
+}
+
+func (i UpdateProductInput) Validate() error {
 	return i.CategoryId.Validate()
 }
 
@@ -55,6 +68,7 @@ type ProductResponse struct {
 }
 
 type Image struct {
+	Id      int         `json:"id" db:"id"`
 	URL     string      `json:"url" db:"url"`
 	AltText null.String `json:"alt_text" db:"alt_text"`
 }

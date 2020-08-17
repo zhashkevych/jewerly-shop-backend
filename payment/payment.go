@@ -1,27 +1,12 @@
 package payment
 
-type GetPaymentFormInput struct {
-	Type       int
-	Lang       string
-	Currency   string
-	Amount     float32
-	Client     Client
-	SuccessURL string
-	FailureURL string
-	NotifyURL  string
-}
-
-type Client struct {
-	Name    string
-	Emails  []string
-	Address string
-	City    string
-	Zip     string
-	Country string
-	Mobile  string
+type GenerateSaleInput struct {
+	Price int
+	Currency string
+	ProductName string
+	TransactionID string
 }
 
 type Provider interface {
-	GetPaymentForm()
-	GetAvailablePaymentTypes()
+	GenerateSale(inp GenerateSaleInput) (string, error)
 }

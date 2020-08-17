@@ -23,7 +23,7 @@ import (
 
 func init() {
 	logrus.SetLevel(logrus.DebugLevel)
-	
+
 	if err := config.Init(); err != nil {
 		logrus.Fatalf("error loading config: %s\n", err.Error())
 	}
@@ -49,17 +49,11 @@ func main() {
 	}
 
 	apiKey := os.Getenv("PAYMENT_API_KEY")
-	apiSecret := os.Getenv("PAYMENT_API_SECRET")
-	if apiKey == "" || apiSecret == "" {
+	if apiKey == "" {
 		logrus.Fatalln("Payment credentials are empty")
 	}
 
-	paymentProvider, err := payment.NewGreenInvoiceProvider(
-		viper.GetString("payments.endpoint"),
-		apiKey, apiSecret)
-	if err != nil {
-		logrus.Fatalf("Error occurred on payment provider initialization: %s\n", err.Error())
-	}
+	paymentProvider := payment.NewIsracardProvider(viper.GetString("payments.endpoint"), apiKey)
 
 	// Init Dependecies
 	repos := repository.NewRepository(db)

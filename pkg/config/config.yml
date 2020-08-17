@@ -17,4 +17,4 @@ storage:
   bucket: "jewerly"
 
 payments:
-  endpoint: "https://sandbox.d.greeninvoice.co.il/api/v1/"
+  endpoint: "https://preprod.paymeservice.com/api/"

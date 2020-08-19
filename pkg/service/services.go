@@ -43,7 +43,8 @@ type Product interface {
 }
 
 type Order interface {
-	Create(userId int64, productIds []int) error
+	Create(input jewerly.CreateOrderInput) (string, error)
+	ProcessCallback(inp jewerly.TransactionCallbackInput) error
 }
 
 // Services Interface, Constructor & Dependencies
@@ -68,5 +69,6 @@ func NewServices(deps Dependencies) *Services {
 		Auth:    NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
 		Admin:   NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
 		Product: NewProductService(deps.Repos.Product, deps.FileStorage),
+		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider),
 	}
 }

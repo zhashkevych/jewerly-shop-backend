@@ -6,7 +6,6 @@ import (
 )
 
 // TODO: Image Compression
-// TODO: Order Placement
 // TODO: Email Sending
 
 // Inputs

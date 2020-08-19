@@ -17,6 +17,7 @@ const (
 	productImagesTable = "product_images"
 	ordersTable        = "orders"
 	orderItemsTable    = "order_items"
+	transactionsTable  = "transactions"
 	adminUsersTable    = "admin_users"
 )
 

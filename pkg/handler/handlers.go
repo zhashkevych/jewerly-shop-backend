@@ -35,24 +35,30 @@ func (h *Handler) Init() *gin.Engine {
 		c.String(http.StatusOK, "pong")
 	})
 
-	h.initAuthRoutes(router)
+	h.initPublicRoutes(router)
 	h.initAPIRoutes(router)
 	h.initAdminRoutes(router)
 
 	return router
 }
 
-func (h *Handler) initAuthRoutes(router *gin.Engine) {
+func (h *Handler) initPublicRoutes(router *gin.Engine) {
 	auth := router.Group("/auth")
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
 		auth.POST("/admin/sign-in", h.adminSignIn)
 	}
+
+	payment := router.Group("/payment")
+	{
+		payment.POST("/callback", h.callback)
+	}
 }
 
 func (h *Handler) initAPIRoutes(router *gin.Engine) {
-	api := router.Group("/api", h.userIdentity)
+	//api := router.Group("/api", h.userIdentity)
+	api := router.Group("/api")
 	{
 		user := api.Group("/user")
 		{

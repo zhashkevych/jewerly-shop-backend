@@ -26,28 +26,21 @@ func (h *Handler) getUserOrders(c *gin.Context) {
 
 // NO AUTH NEEDED
 
-type placeOrderInput struct {
-	ProductIds []int `json:"product_ids", binding:"required"`
-}
-
 func (h *Handler) placeOrder(c *gin.Context) {
-	var inp placeOrderInput
+	var inp jewerly.CreateOrderInput
 
 	if err := c.ShouldBindJSON(&inp); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
-	user, ok := c.Get(UserCtx)
-	if !ok {
-		
-	}
-
-	err := h.services.Order.Create(user.(jewerly.User).Id, inp.ProductIds)
+	url, err := h.services.Order.Create(inp)
 	if err != nil {
 		newErrorResponse(c, getStatusCode(err), err)
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"url": url,
+	})
 }

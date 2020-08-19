@@ -19,8 +19,6 @@ import (
 	"time"
 )
 
-// TODO: init OS env vars and validate
-
 func init() {
 	logrus.SetLevel(logrus.DebugLevel)
 
@@ -53,7 +51,9 @@ func main() {
 		logrus.Fatalln("Payment credentials are empty")
 	}
 
-	paymentProvider := payment.NewIsracardProvider(viper.GetString("payments.endpoint"), apiKey)
+	paymentProvider := payment.NewIsracardProvider(
+		viper.GetString("payments.endpoint"), apiKey,
+		viper.GetString("payments.return_url"), viper.GetString("payments.callback_url"))
 
 	// Init Dependecies
 	repos := repository.NewRepository(db)

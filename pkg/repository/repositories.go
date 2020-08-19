@@ -26,7 +26,9 @@ type Product interface {
 }
 
 type Order interface {
-	Create(userId int64, productIds []int) error
+	Create(input jewerly.CreateOrderInput) (int, error)
+	GetOrderProducts(items []jewerly.OrderItem) ([]jewerly.ProductResponse, error)
+	UpdateTransaction(transactionId, cardMask, status string) error
 }
 
 type Repository struct {
@@ -41,5 +43,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		User:    NewUserRepository(db),
 		Admin:   NewAdminRepository(db),
 		Product: NewProductRepository(db),
+		Order:   NewOrderRepository(db),
 	}
 }

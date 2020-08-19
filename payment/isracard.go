@@ -9,27 +9,28 @@ import (
 	"time"
 )
 
-// todo: use default consts for language
-// todo: implement callback endpoints and set them in request
-
 const (
+	statusFail           = 1
 	generateSaleEndpoint = "generate-sale"
-
-	StatusSuccess = 0
-	StatusFail    = 1
+	defaultLanguage      = "en"
 )
 
 type IsracardProvider struct {
 	endpoint string
 	apiKey   string
 
+	callbackURL string
+	returnURL   string
+
 	client http.Client
 }
 
-func NewIsracardProvider(endpoint string, apiKey string) *IsracardProvider {
+func NewIsracardProvider(endpoint, apiKey, returnURL, callbackURL string) *IsracardProvider {
 	return &IsracardProvider{
-		endpoint: endpoint,
-		apiKey:   apiKey,
+		endpoint:    endpoint,
+		apiKey:      apiKey,
+		returnURL:   returnURL,
+		callbackURL: callbackURL,
 		client: http.Client{
 			Timeout: time.Second * 5,
 		}}
@@ -60,25 +61,22 @@ func (p *IsracardProvider) GenerateSale(inp GenerateSaleInput) (string, error) {
 		ProductName:   inp.ProductName,
 		Currency:      inp.Currency,
 		TransactionID: inp.TransactionID,
-		Language:      "en",
-		CallbackURL:   "https://www.example.com/payment/callback",
-		ReturnURL:     "https://www.example.com/payment/success",
+		Language:      defaultLanguage,
+		CallbackURL:   p.callbackURL,
+		ReturnURL:     p.returnURL,
 	}
-
 	out := new(generateSaleResponse)
-
-	logrus.Debugf("Sending: %+v\n", input)
 
 	err := p.do(http.MethodPost, generateSaleEndpoint, input, out)
 	if err != nil {
 		return "", err
 	}
 
-	if out.StatusCode == StatusFail {
+	logrus.Debugf("resp: %+v\n", out)
+
+	if out.StatusCode == statusFail {
 		return "", errors.New("generate sail fail")
 	}
-
-	logrus.Debugf("resp: %+v\n", out)
 
 	return out.SaleURL, nil
 }

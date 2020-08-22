@@ -1,5 +1,10 @@
 package jewerly
 
+import (
+	"gopkg.in/guregu/null.v3"
+	"time"
+)
+
 // todo: input validation
 
 type CreateOrderInput struct {
@@ -17,8 +22,8 @@ type CreateOrderInput struct {
 }
 
 type OrderItem struct {
-	ProductId int `json:"product_id"  binding:"required"`
-	Quantity  int `json:"quantity"  binding:"required"`
+	ProductId int `json:"product_id" db:"product_id"  binding:"required"`
+	Quantity  int `json:"quantity" db:"quantity" binding:"required"`
 }
 
 type TransactionCallbackInput struct {
@@ -37,4 +42,36 @@ type TransactionCallbackInput struct {
 	SalePaidDate       string `form:"sale_paid_date"`
 	SaleReleaseDate    string `form:"sale_release_date"`
 	SaleInvoiceURL     string `form:"sale_invoice_url"`
+}
+
+type Order struct {
+	Id             int           `json:"id" db:"id"`
+	OrderedAt      time.Time     `json:"ordered_at" db:"ordered_at"`
+	FirstName      string        `json:"first_name" db:"first_name"`
+	LastName       string        `json:"last_name" db:"last_name"`
+	AdditionalName string        `json:"additional_name" db:"additional_name"`
+	Country        string        `json:"country" db:"country"`
+	Address        string        `json:"address" db:"address"`
+	Email          string        `json:"email" db:"email"`
+	PostalCode     string        `json:"postal_code" db:"postal_code"`
+	TotalCost      float32       `json:"total_cost" db:"total_cost"`
+	Items          []OrderItem   `json:"items"`
+	Transactions   []Transaction `json:"transactions"`
+}
+
+type Transaction struct {
+	TransactionId string      `json:"transaction_id" db:"uuid"`
+	CardMask      null.String `json:"card_mask" db:"card_mask"`
+	Status        string      `json:"status" db:"status"`
+	CreatedAt     time.Time   `json:"created_at" db:"created_at"`
+}
+
+type OrderList struct {
+	Data  []Order `json:"data"`
+	Total int     `json:"total"`
+}
+
+type GetAllOrdersFilters struct {
+	Offset int
+	Limit  int
 }

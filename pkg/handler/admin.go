@@ -186,7 +186,14 @@ func (h *Handler) uploadImage(c *gin.Context) {
 // Orders Handlers
 
 func (h *Handler) getAllOrders(c *gin.Context) {
+	orders, err := h.services.Order.GetAll(getOrderFilters(c))
+	if err != nil {
+		logrus.Errorf("Failed to get orders: %s\n", err.Error())
+		newErrorResponse(c, getStatusCode(err), err)
+		return
+	}
 
+	c.JSON(http.StatusOK, orders)
 }
 
 func (h *Handler) getOrder(c *gin.Context) {

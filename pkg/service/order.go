@@ -67,6 +67,14 @@ func (s *OrderService) ProcessCallback(inp jewerly.TransactionCallbackInput) err
 	return s.repo.CreateTransaction(inp.TransactionID, inp.BuyerCardMask, inp.NotifyType)
 }
 
+func (s *OrderService) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.OrderList, error) {
+	return s.repo.GetAll(input)
+}
+
+func (s *OrderService) GetById(id int) (jewerly.Order, error) {
+	return s.repo.GetById(id)
+}
+
 func (s *OrderService) getOrderTotalCost(orderItems []jewerly.OrderItem) (float32, error) {
 	products, err := s.repo.GetOrderProducts(orderItems)
 	if err != nil {

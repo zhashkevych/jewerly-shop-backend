@@ -57,13 +57,12 @@ func (h *Handler) initPublicRoutes(router *gin.Engine) {
 }
 
 func (h *Handler) initAPIRoutes(router *gin.Engine) {
-	//api := router.Group("/api", h.userIdentity)
 	api := router.Group("/api")
 	{
-		user := api.Group("/user")
+		user := api.Group("/user",  h.userIdentity)
 		{
 			user.GET("/profile", h.getUserProfile)
-			user.GET("/orders", h.getUserOrders)
+			//user.GET("/orders", h.getUserOrders)
 		}
 
 		products := api.Group("/products")

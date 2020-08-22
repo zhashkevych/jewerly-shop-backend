@@ -109,3 +109,48 @@ func (r *OrderRepository) CreateTransaction(transactionId, cardMask, status stri
 		transactionId, cardMask, status)
 	return err
 }
+
+func (r *OrderRepository) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.OrderList, error) {
+	var orders jewerly.OrderList
+
+	selectOrdersQuery := fmt.Sprintf(`SELECT id, ordered_at, first_name, last_name, additional_name, country,
+										address, email, postal_code, total_cost FROM %s OFFSET $1 LIMIT $2`, ordersTable)
+	err := r.db.Select(&orders.Data, selectOrdersQuery, input.Offset, input.Limit)
+	if err != nil {
+		logrus.Errorf("failed to get orders: %s", err.Error())
+		return orders, err
+	}
+
+	selectCountQuery := fmt.Sprintf(`SELECT count(*) FROM %s`, ordersTable)
+	err = r.db.Get(&orders.Total, selectCountQuery)
+	if err != nil {
+		logrus.Errorf("failed to get orders count: %s", err.Error())
+		return orders, err
+	}
+
+	selectOrderItemsQuery := fmt.Sprintf("SELECT product_id, quantity FROM %s WHERE order_id = $1", orderItemsTable)
+
+	for i := range orders.Data {
+		err = r.db.Select(&orders.Data[i].Items, selectOrderItemsQuery, orders.Data[i].Id)
+		if err != nil {
+			logrus.Errorf("failed to get order items for order id %d, error: %s", orders.Data[i].Id, err.Error())
+			return orders, err
+		}
+	}
+
+	selectTransactionsQuery := fmt.Sprintf(`SELECT th.uuid, th.created_at, th.status, th.card_mask FROM %s th 
+											INNER JOIN %s t on t.uuid = th.uuid WHERE t.order_id = $1`, transactionsHistoryTable, transactionsTable)
+	for i := range orders.Data {
+		err = r.db.Select(&orders.Data[i].Transactions, selectTransactionsQuery, orders.Data[i].Id)
+		if err != nil {
+			logrus.Errorf("failed to get transactions for order id %d, error: %s", orders.Data[i].Id, err.Error())
+			return orders, err
+		}
+	}
+
+	return orders, nil
+}
+
+func (r *OrderRepository) GetById(id int) (jewerly.Order, error) {
+	return jewerly.Order{}, nil
+}

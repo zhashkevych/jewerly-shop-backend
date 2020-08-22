@@ -35,7 +35,7 @@ type User interface {
 
 type Product interface {
 	Create(jewerly.CreateProductInput) error
-	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
+	GetAll(jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
 	GetById(id int, language string) (jewerly.ProductResponse, error)
 	Update(id int, inp jewerly.UpdateProductInput) error
 	Delete(id int) error
@@ -43,8 +43,10 @@ type Product interface {
 }
 
 type Order interface {
-	Create(input jewerly.CreateOrderInput) (string, error)
-	ProcessCallback(inp jewerly.TransactionCallbackInput) error
+	Create(jewerly.CreateOrderInput) (string, error)
+	ProcessCallback(jewerly.TransactionCallbackInput) error
+	GetAll(jewerly.GetAllOrdersFilters) (jewerly.OrderList, error)
+	GetById(id int) (jewerly.Order, error)
 }
 
 // Services Interface, Constructor & Dependencies

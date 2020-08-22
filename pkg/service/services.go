@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
+	"github.com/zhashkevych/jewelry-shop-backend/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/storage"
 	"io"
@@ -34,22 +35,27 @@ type User interface {
 
 type Product interface {
 	Create(jewerly.CreateProductInput) error
-	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
+	GetAll(jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
 	GetById(id int, language string) (jewerly.ProductResponse, error)
+	Update(id int, inp jewerly.UpdateProductInput) error
 	Delete(id int) error
 	UploadImage(ctx context.Context, file io.Reader, size int64, contentType string) (int, error)
 }
 
 type Order interface {
-	Create(userId int64, productIds []int) error
+	Create(jewerly.CreateOrderInput) (string, error)
+	ProcessCallback(jewerly.TransactionCallbackInput) error
+	GetAll(jewerly.GetAllOrdersFilters) (jewerly.OrderList, error)
+	GetById(id int) (jewerly.Order, error)
 }
 
 // Services Interface, Constructor & Dependencies
 type Dependencies struct {
-	Repos       *repository.Repository
-	FileStorage storage.Storage
-	HashSalt    string
-	SigningKey  []byte
+	Repos           *repository.Repository
+	FileStorage     storage.Storage
+	HashSalt        string
+	SigningKey      []byte
+	PaymentProvider payment.Provider
 }
 
 type Services struct {
@@ -65,5 +71,6 @@ func NewServices(deps Dependencies) *Services {
 		Auth:    NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
 		Admin:   NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
 		Product: NewProductService(deps.Repos.Product, deps.FileStorage),
+		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider),
 	}
 }

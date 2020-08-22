@@ -28,7 +28,6 @@ func (s *ProductService) Create(product jewerly.CreateProductInput) error {
 	return s.repo.Create(product)
 }
 
-// todo: add total calculation, additional filters & pagination
 func (s *ProductService) GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error) {
 	productList, err := s.repo.GetAll(filters)
 	if err != nil {
@@ -46,6 +45,10 @@ func (s *ProductService) GetAll(filters jewerly.GetAllProductsFilters) (jewerly.
 	}
 
 	return productList, nil
+}
+
+func (s *ProductService) Update(id int, inp jewerly.UpdateProductInput) error {
+	return s.repo.Update(id, inp)
 }
 
 func (s *ProductService) Delete(id int) error {

@@ -1,3 +1,7 @@
 db:
   postgres:
     dbname: "stage"
+
+payments:
+  callback_url: "http://164.90.218.246:8001/payment/callback"
+  return_url: "https://www.example.com/payment/success"

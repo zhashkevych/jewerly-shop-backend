@@ -5,12 +5,8 @@ import (
 	"gopkg.in/guregu/null.v3"
 )
 
-// TODO: In Stock
 // TODO: Image Compression
-// TODO: Order Placement
 // TODO: Email Sending
-
-// Products
 
 // Inputs
 type CreateProductInput struct {
@@ -25,6 +21,22 @@ type CreateProductInput struct {
 }
 
 func (i CreateProductInput) Validate() error {
+	return i.CategoryId.Validate()
+}
+
+type UpdateProductInput struct {
+	Titles        *MultiLanguageInput `json:"titles"`
+	Descriptions  *MultiLanguageInput `json:"descriptions"`
+	Material      *MultiLanguageInput `json:"materials"`
+	CurrentPrice  null.Float          `json:"current_price"`
+	PreviousPrice null.Float          `json:"previous_price"`
+	Code          null.String         `json:"code"`
+	//ImageIds      []int               `json:"image_ids"`
+	CategoryId *Category `json:"category_id"`
+	InStock    null.Bool `json:"in_stock"`
+}
+
+func (i UpdateProductInput) Validate() error {
 	return i.CategoryId.Validate()
 }
 
@@ -52,9 +64,11 @@ type ProductResponse struct {
 	Code          null.String `json:"code" db:"code"`
 	Images        []Image     `json:"images"`
 	CategoryId    Category    `json:"category_id" db:"category_id"`
+	InStock       bool        `json:"in_stock" db:"in_stock"`
 }
 
 type Image struct {
+	Id      int         `json:"id" db:"id"`
 	URL     string      `json:"url" db:"url"`
 	AltText null.String `json:"alt_text" db:"alt_text"`
 }

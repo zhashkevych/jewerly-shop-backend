@@ -1,8 +1,10 @@
 package repository
 
 import (
-	//"fmt"
+	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
+	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 )
 
 type OrderRepository struct {
@@ -13,21 +15,142 @@ func NewOrderRepository(db *sqlx.DB) *OrderRepository {
 	return &OrderRepository{db: db}
 }
 
-func (r *OrderRepository) Create(userId int64, productIds []int) error {
-	//insertValuesQuery := ""
-	//insertValues := make([]interface{}, len(productIds))
-	//
-	//for i, id := range productIds {
-	//	if i == len(productIds) - 1 {
-	//		insertValues += fmt.Sprintf("($1, $%d)", i+1)
-	//	} else {
-	//		insertValues += fmt.Sprintf("($1, $%d), ", i+1)
-	//	}
-	//
-	//	insertValues[i] = id
-	//}
-	//
-	//r.db.Exec(fmt.Sprintf("INSERT INTO %s"))
-	return nil
+func (r *OrderRepository) Create(input jewerly.CreateOrderInput) (int, error) {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return 0, err
+	}
+
+	// create order
+	var orderId int
+	createOrderQuery := fmt.Sprintf(`INSERT INTO %s (first_name, last_name, additional_name, country, address, postal_code, email, total_cost)
+									VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`, ordersTable)
+	row := tx.QueryRow(createOrderQuery, input.FirstName, input.LastName, input.AdditionalName, input.Country, input.Address,
+		input.PostalCode, input.Email, input.TotalCost)
+
+	err = row.Scan(&orderId)
+	if err != nil {
+		logrus.Errorf("failed to create new order: %s", err.Error())
+		tx.Rollback()
+		return 0, err
+	}
+
+	// create order items
+	items := ""
+	values := []interface{}{}
+	values = append(values, orderId)
+	argId := 2
+
+	for i, item := range input.Items {
+		values = append(values, item.ProductId, item.Quantity)
+
+		if i == len(input.Items)-1 {
+			items += fmt.Sprintf("($1, $%d, $%d)", argId, argId+1)
+			break
+		}
+
+		items += fmt.Sprintf("($1, $%d, $%d), ", argId, argId+1)
+
+		argId += 2
+	}
+
+	createOrderItemsQuery := fmt.Sprintf("INSERT INTO %s (order_id, product_id, quantity) VALUES %s", orderItemsTable, items)
+	logrus.Debug(createOrderItemsQuery)
+
+	_, err = tx.Exec(createOrderItemsQuery, values...)
+	if err != nil {
+		logrus.Errorf("failed to create order items: %s", err.Error())
+		tx.Rollback()
+		return 0, err
+	}
+
+	//create transaction
+	_, err = tx.Exec(fmt.Sprintf("INSERT INTO %s (order_id, uuid) VALUES ($1, $2)", transactionsTable),
+		orderId, input.TransactionID)
+	if err != nil {
+		logrus.Errorf("failed to create transaction: %s", err.Error())
+		tx.Rollback()
+		return 0, err
+	}
+
+	_, err = tx.Exec(fmt.Sprintf("INSERT INTO %s (uuid) VALUES ($1)", transactionsHistoryTable), input.TransactionID)
+	if err != nil {
+		logrus.Errorf("failed to insert transaction history record: %s", err.Error())
+		tx.Rollback()
+		return 0, err
+	}
+
+	return orderId, tx.Commit()
 }
 
+func (r *OrderRepository) GetOrderProducts(items []jewerly.OrderItem) ([]jewerly.ProductResponse, error) {
+	var products []jewerly.ProductResponse
+
+	ids := ""
+	values := make([]interface{}, len(items))
+
+	for i := range items {
+		values[i] = items[i].ProductId
+
+		if i == len(items)-1 {
+			ids += fmt.Sprintf("$%d", i+1)
+			break
+		}
+
+		ids += fmt.Sprintf("$%d, ", i+1)
+	}
+
+	err := r.db.Select(&products, fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s)", productsTable, ids), values...)
+	return products, err
+}
+
+func (r *OrderRepository) CreateTransaction(transactionId, cardMask, status string) error {
+	_, err := r.db.Exec(fmt.Sprintf("INSERT INTO %s (uuid, card_mask, status) VALUES ($1, $2, $3)", transactionsHistoryTable),
+		transactionId, cardMask, status)
+	return err
+}
+
+func (r *OrderRepository) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.OrderList, error) {
+	var orders jewerly.OrderList
+
+	selectOrdersQuery := fmt.Sprintf(`SELECT id, ordered_at, first_name, last_name, additional_name, country,
+										address, email, postal_code, total_cost FROM %s OFFSET $1 LIMIT $2`, ordersTable)
+	err := r.db.Select(&orders.Data, selectOrdersQuery, input.Offset, input.Limit)
+	if err != nil {
+		logrus.Errorf("failed to get orders: %s", err.Error())
+		return orders, err
+	}
+
+	selectCountQuery := fmt.Sprintf(`SELECT count(*) FROM %s`, ordersTable)
+	err = r.db.Get(&orders.Total, selectCountQuery)
+	if err != nil {
+		logrus.Errorf("failed to get orders count: %s", err.Error())
+		return orders, err
+	}
+
+	selectOrderItemsQuery := fmt.Sprintf("SELECT product_id, quantity FROM %s WHERE order_id = $1", orderItemsTable)
+
+	for i := range orders.Data {
+		err = r.db.Select(&orders.Data[i].Items, selectOrderItemsQuery, orders.Data[i].Id)
+		if err != nil {
+			logrus.Errorf("failed to get order items for order id %d, error: %s", orders.Data[i].Id, err.Error())
+			return orders, err
+		}
+	}
+
+	selectTransactionsQuery := fmt.Sprintf(`SELECT th.uuid, th.created_at, th.status, th.card_mask FROM %s th 
+											INNER JOIN %s t on t.uuid = th.uuid WHERE t.order_id = $1`, transactionsHistoryTable, transactionsTable)
+	for i := range orders.Data {
+		err = r.db.Select(&orders.Data[i].Transactions, selectTransactionsQuery, orders.Data[i].Id)
+		if err != nil {
+			logrus.Errorf("failed to get transactions for order id %d, error: %s", orders.Data[i].Id, err.Error())
+			return orders, err
+		}
+	}
+
+	return orders, nil
+}
+
+func (r *OrderRepository) GetById(id int) (jewerly.Order, error) {
+	return jewerly.Order{}, nil
+}

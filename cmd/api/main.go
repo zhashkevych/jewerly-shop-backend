@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/zhashkevych/jewelry-shop-backend"
+	"github.com/zhashkevych/jewelry-shop-backend/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/config"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/handler"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
@@ -19,12 +20,15 @@ import (
 )
 
 func init() {
+	logrus.SetLevel(logrus.DebugLevel)
+
 	if err := config.Init(); err != nil {
 		logrus.Fatalf("error loading config: %s\n", err.Error())
 	}
 }
 
 func main() {
+	// Init infrastructure layer
 	db, err := repository.NewPostgresDB(repository.Config{
 		Host:     viper.GetString("db.postgres.host"),
 		Port:     viper.GetString("db.postgres.port"),
@@ -42,13 +46,23 @@ func main() {
 		logrus.Fatalf("Error occurred on storage initialization: %s\n", err.Error())
 	}
 
+	apiKey := os.Getenv("PAYMENT_API_KEY")
+	if apiKey == "" {
+		logrus.Fatalln("Payment credentials are empty")
+	}
+
+	paymentProvider := payment.NewIsracardProvider(
+		viper.GetString("payments.endpoint"), apiKey,
+		viper.GetString("payments.return_url"), viper.GetString("payments.callback_url"))
+
 	// Init Dependecies
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Dependencies{
-		Repos:       repos,
-		HashSalt:    viper.GetString("auth.hash_salt"),
-		SigningKey:  []byte(viper.GetString("auth.signing_key")),
-		FileStorage: minioStorage,
+		Repos:           repos,
+		HashSalt:        viper.GetString("auth.hash_salt"),
+		SigningKey:      []byte(viper.GetString("auth.signing_key")),
+		FileStorage:     minioStorage,
+		PaymentProvider: paymentProvider,
 	})
 	handlers := handler.NewHandler(services)
 

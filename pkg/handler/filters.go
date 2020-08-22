@@ -38,3 +38,22 @@ func getProductFilters(c *gin.Context) jewerly.GetAllProductsFilters {
 
 	return filters
 }
+
+func getOrderFilters(c *gin.Context) jewerly.GetAllOrdersFilters {
+	var filters jewerly.GetAllOrdersFilters
+
+	limit, err := strconv.Atoi(c.Query("limit"))
+	if err != nil {
+		filters.Limit = defaultLimit
+	} else {
+		filters.Limit = limit
+	}
+
+	offset, err := strconv.Atoi(c.Query("offset"))
+	if err != nil {
+		filters.Offset = defaultOffset
+	} else {
+		filters.Offset = offset
+	}
+	return filters
+}

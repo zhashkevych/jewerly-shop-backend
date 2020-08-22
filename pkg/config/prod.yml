@@ -1,0 +1,4 @@
+payments:
+  endpoint: "https://ng.paymeservice.com/api/"
+  callback_url: "http://silverrain-jewelry.com:8000/payment/callback"
+  return_url: "https://www.example.com/payment/success""

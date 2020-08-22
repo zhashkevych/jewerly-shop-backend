@@ -19,13 +19,18 @@ type Product interface {
 	Create(product jewerly.CreateProductInput) error
 	GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
 	GetById(id int, language string) (jewerly.ProductResponse, error)
+	Update(id int, inp jewerly.UpdateProductInput) error
 	Delete(id int) error
 	CreateImage(url, altText string) (int, error)
 	GetProductImages(productId int) ([]jewerly.Image, error)
 }
 
 type Order interface {
-	Create(userId int64, productIds []int) error
+	Create(input jewerly.CreateOrderInput) (int, error)
+	GetOrderProducts(items []jewerly.OrderItem) ([]jewerly.ProductResponse, error)
+	CreateTransaction(transactionId, cardMask, status string) error
+	GetAll(jewerly.GetAllOrdersFilters) (jewerly.OrderList, error)
+	GetById(id int) (jewerly.Order, error)
 }
 
 type Repository struct {
@@ -40,5 +45,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		User:    NewUserRepository(db),
 		Admin:   NewAdminRepository(db),
 		Product: NewProductRepository(db),
+		Order:   NewOrderRepository(db),
 	}
 }

@@ -13,10 +13,13 @@ func Init() error {
 		return err
 	}
 
-	if env := os.Getenv("HOST"); env == "stage" {
+	env := os.Getenv("HOST")
+
+	switch env {
+	case "stage", "prod":
 		viper.SetConfigName(env)
 		return viper.MergeInConfig()
+	default:
+		return nil
 	}
-
-	return nil
 }

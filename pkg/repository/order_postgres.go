@@ -73,6 +73,13 @@ func (r *OrderRepository) Create(input jewerly.CreateOrderInput) (int, error) {
 		return 0, err
 	}
 
+	_, err = tx.Exec(fmt.Sprintf("INSERT INTO %s (uuid) VALUES ($1)", transactionsHistoryTable), input.TransactionID)
+	if err != nil {
+		logrus.Errorf("failed to insert transaction history record: %s", err.Error())
+		tx.Rollback()
+		return 0, err
+	}
+
 	return orderId, tx.Commit()
 }
 
@@ -97,7 +104,8 @@ func (r *OrderRepository) GetOrderProducts(items []jewerly.OrderItem) ([]jewerly
 	return products, err
 }
 
-func (r *OrderRepository) UpdateTransaction(transactionId, cardMask, status string) error {
-	_, err := r.db.Exec(fmt.Sprintf("UPDATE %s SET card_mask=$1, status=$2 where uuid=$3", transactionsTable), cardMask, status, transactionId)
+func (r *OrderRepository) CreateTransaction(transactionId, cardMask, status string) error {
+	_, err := r.db.Exec(fmt.Sprintf("INSERT INTO %s (uuid, card_mask, status) VALUES ($1, $2, $3)", transactionsHistoryTable),
+		transactionId, cardMask, status)
 	return err
 }

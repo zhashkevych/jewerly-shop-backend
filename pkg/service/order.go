@@ -64,8 +64,7 @@ func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
 }
 
 func (s *OrderService) ProcessCallback(inp jewerly.TransactionCallbackInput) error {
-	//paidDate, err := time.Parse(timeFomrat, inp.SalePaidDate)
-	return s.repo.UpdateTransaction(inp.TransactionID, inp.BuyerCardMask, inp.NotifyType)
+	return s.repo.CreateTransaction(inp.TransactionID, inp.BuyerCardMask, inp.NotifyType)
 }
 
 func (s *OrderService) getOrderTotalCost(orderItems []jewerly.OrderItem) (float32, error) {

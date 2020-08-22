@@ -7,18 +7,19 @@ import (
 )
 
 const (
-	userTable          = "users"
-	categoriesTable    = "categories"
-	titlesTable        = "titles"
-	descriptionsTable  = "descriptions"
-	materialsTable     = "materials"
-	imagesTable        = "images"
-	productsTable      = "products"
-	productImagesTable = "product_images"
-	ordersTable        = "orders"
-	orderItemsTable    = "order_items"
-	transactionsTable  = "transactions"
-	adminUsersTable    = "admin_users"
+	userTable                = "users"
+	categoriesTable          = "categories"
+	titlesTable              = "titles"
+	descriptionsTable        = "descriptions"
+	materialsTable           = "materials"
+	imagesTable              = "images"
+	productsTable            = "products"
+	productImagesTable       = "product_images"
+	ordersTable              = "orders"
+	orderItemsTable          = "order_items"
+	transactionsTable        = "transactions"
+	transactionsHistoryTable = "transactions_history"
+	adminUsersTable          = "admin_users"
 )
 
 type Config struct {

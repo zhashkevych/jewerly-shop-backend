@@ -10,3 +10,4 @@ ALTER TABLE orders
     DROP COLUMN postal_code;
 
 DROP TABLE transactions;
+DROP TABLE transactions_history;

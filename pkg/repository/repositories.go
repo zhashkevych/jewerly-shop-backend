@@ -28,7 +28,7 @@ type Product interface {
 type Order interface {
 	Create(input jewerly.CreateOrderInput) (int, error)
 	GetOrderProducts(items []jewerly.OrderItem) ([]jewerly.ProductResponse, error)
-	UpdateTransaction(transactionId, cardMask, status string) error
+	CreateTransaction(transactionId, cardMask, status string) error
 }
 
 type Repository struct {

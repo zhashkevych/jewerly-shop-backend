@@ -15,10 +15,16 @@ ALTER TABLE orders
 
 CREATE TABLE transactions
 (
-    "id"        serial                                       NOT NULL UNIQUE,
-    "order_id"  int REFERENCES orders (id) ON DELETE CASCADE NOT NULL,
-    "uuid"      uuid                                         NOT NULL,
-    "status"    varchar(255)                                 NOT NULL DEFAULT 'created',
-    "card_mask" varchar(255),
-    "paid_date" timestamp
+    "id"       serial                                       NOT NULL UNIQUE,
+    "order_id" int REFERENCES orders (id) ON DELETE CASCADE NOT NULL,
+    "uuid"     uuid                                         NOT NULL
+);
+
+CREATE TABLE transactions_history
+(
+    "id"         serial       NOT NULL UNIQUE,
+    "uuid"       uuid         NOT NULL,
+    "card_mask"  varchar(255),
+    "status"     varchar(255) NOT NULL DEFAULT 'created',
+    "created_at" timestamp    NOT NULL DEFAULT NOW()
 );

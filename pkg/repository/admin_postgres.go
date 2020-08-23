@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 )
 
 type AdminRepository struct {
@@ -16,8 +17,9 @@ func NewAdminRepository(db *sqlx.DB) *AdminRepository {
 }
 
 func (r *AdminRepository) Authorize(email, passwordHash string) error {
+	var admin jewerly.AdminUser
 	query := fmt.Sprintf("SELECT * FROM %s WHERE login=$1 AND password_hash=$2", adminUsersTable)
-	_, err := r.db.Exec(query, email, passwordHash)
+	err := r.db.Get(&admin, query, email, passwordHash)
 
 	return err
 }

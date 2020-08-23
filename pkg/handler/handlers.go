@@ -27,7 +27,8 @@ func (h *Handler) Init() *gin.Engine {
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
-	config.AllowHeaders = append(config.AllowHeaders, "Access-Control-Request-Headers", "Authorization")
+	config.AllowHeaders = append(config.AllowHeaders, "Access-Control-Request-Headers", "Authorization", "X-Forwarded-For",
+		"Host", "User-Agent", "Accept")
 	router.Use(cors.New(config))
 
 	// Init router

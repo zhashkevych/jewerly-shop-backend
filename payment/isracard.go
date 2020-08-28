@@ -67,6 +67,8 @@ func (p *IsracardProvider) GenerateSale(inp GenerateSaleInput) (string, error) {
 	}
 	out := new(generateSaleResponse)
 
+	logrus.Debugf("generate sale input %+v", input)
+
 	err := p.do(http.MethodPost, generateSaleEndpoint, input, out)
 	if err != nil {
 		return "", err

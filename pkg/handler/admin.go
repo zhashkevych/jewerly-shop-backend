@@ -36,7 +36,7 @@ func (h *Handler) adminSignIn(c *gin.Context) {
 	token, err := h.services.Admin.SignIn(inp.Login, inp.Password)
 	if err != nil {
 		logrus.Errorf("Failed to create user: %s\n", err.Error())
-		newErrorResponse(c, http.StatusBadRequest, err)
+		newErrorResponse(c, http.StatusUnauthorized, err)
 		return
 	}
 

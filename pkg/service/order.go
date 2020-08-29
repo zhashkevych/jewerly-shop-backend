@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
-	"github.com/zhashkevych/jewelry-shop-backend/payment"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 )
 

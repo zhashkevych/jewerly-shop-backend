@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
-	"github.com/zhashkevych/jewelry-shop-backend/payment"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/storage"
 	"io"

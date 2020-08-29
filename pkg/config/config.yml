@@ -20,3 +20,9 @@ payments:
   endpoint: "https://preprod.paymeservice.com/api/"
   callback_url: "http://35f1ca80bb87.ngrok.io/payment/callback"
   return_url: "https://www.example.com/payment/success"
+
+email:
+  smtp:
+    sender: "info@silverrain-jewelry.com"
+    host: "mail.your-server.de"
+    port: ":25"

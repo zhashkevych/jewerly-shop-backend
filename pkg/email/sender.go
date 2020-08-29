@@ -1,7 +1,10 @@
 package email
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/sirupsen/logrus"
+	"html/template"
 	"net/mail"
 )
 
@@ -37,4 +40,21 @@ func (m *Email) EmailBytes() []byte {
 	msg += "\r\n" + m.Body
 
 	return []byte(msg)
+}
+
+func (m *Email) GenerateBodyFromHTML(templateFileName string, data interface{}) error {
+	t, err := template.ParseFiles(templateFileName)
+	if err != nil {
+		logrus.Errorf("failed to parse file %s:%s\n", templateFileName, err.Error())
+		return err
+	}
+
+	buf := new(bytes.Buffer)
+	if err = t.Execute(buf, data); err != nil {
+		return err
+	}
+
+	m.Body = buf.String()
+
+	return nil
 }

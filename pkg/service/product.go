@@ -5,7 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
-	"github.com/zhashkevych/jewelry-shop-backend/storage"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/storage"
 	"io"
 	"math/rand"
 )

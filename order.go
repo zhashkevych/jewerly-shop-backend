@@ -7,6 +7,10 @@ import (
 
 // todo: input validation
 
+const (
+	TransactionStatusCreated = "Created"
+)
+
 type CreateOrderInput struct {
 	Items          []OrderItem `json:"items" binding:"required"`
 	FirstName      string      `json:"first_name"  binding:"required"`

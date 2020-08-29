@@ -5,5 +5,6 @@ WORKDIR /root/
 
 COPY ./.bin/app .
 COPY pkg/config ./config/
+COPY templates/ ./templates/
 
 CMD ["./app"]

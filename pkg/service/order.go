@@ -7,6 +7,7 @@ import (
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
+	"time"
 )
 
 const (
@@ -17,10 +18,11 @@ const (
 type OrderService struct {
 	repo            repository.Order
 	paymentProvider payment.Provider
+	emailService    Email
 }
 
-func NewOrderService(repo repository.Order, paymentProvider payment.Provider) *OrderService {
-	return &OrderService{repo: repo, paymentProvider: paymentProvider}
+func NewOrderService(repo repository.Order, paymentProvider payment.Provider, emailService Email) *OrderService {
+	return &OrderService{repo: repo, paymentProvider: paymentProvider, emailService: emailService}
 }
 
 func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
@@ -56,6 +58,24 @@ func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
 		logrus.Errorf("failed to generate sale form: %s", err.Error())
 		return "", err
 	}
+
+	go func() {
+		if err := s.emailService.SendOrderInfo(jewerly.OrderInfoEmailInput{
+			OrderId:           orderId,
+			FirstName:         input.FirstName,
+			LastName:          input.LastName,
+			Country:           input.Country,
+			Address:           input.Address,
+			PostalCode:        input.PostalCode,
+			Email:             input.Email,
+			TotalCost:         input.TotalCost,
+			TransactionId:     transactionId,
+			OrderedAt:         time.Now(),
+			TransactionStatus: jewerly.TransactionStatusCreated,
+		}); err != nil {
+			logrus.Errorf("failed to send order info email: %s", err.Error())
+		}
+	}()
 
 	url = fmt.Sprintf("%s?first_name=%s&last_name=%s&phone=%s&email=%s&zip_code=%s",
 		url, input.FirstName, input.LastName, input.Phone, input.Email, input.PostalCode)

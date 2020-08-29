@@ -1,0 +1,11 @@
+<h1>Order #{{.OrderId}}</h1>
+<h2>Name: {{.LastName}} {{.FirstName}}</h2>
+<h2>Country: {{.Country}}</h2>
+<h2>Address: {{.Address}}</h2>
+<h2>Postal Code: {{.PostalCode}}</h2>
+<h2>Email: {{.Email}}</h2>
+<h2>Total Cost: {{.TotalCost}}$</h2>
+<h2>Date: {{.OrderedAtFormated}}</h2>
+<h2>Transaction ID: {{.TransactionId}}</h2>
+<h2>Transaction Status: {{.TransactionStatus}}</h2>
+{{if .CardMask}}<h2>Card Mask: {{.CardMask}}</h2>{{end}}

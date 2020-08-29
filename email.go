@@ -3,6 +3,7 @@ package jewerly
 import "time"
 
 // todo: bind transaction statuses with custom statuses
+// todo: add products info
 
 type OrderInfoEmailInput struct {
 	OrderId           int

@@ -17,6 +17,7 @@ WORKDIR /root/
 
 COPY --from=0 /github.com/zhashkevych/jewelry-shop-backend/.bin/app .
 COPY --from=0 /github.com/zhashkevych/jewelry-shop-backend/pkg/config/ ./config/
+COPY --from=0 /github.com/zhashkevych/jewelry-shop-backend/templates/ ./templates/
 
 EXPOSE 8000
 

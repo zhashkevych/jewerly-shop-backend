@@ -15,6 +15,7 @@ func NewOrderRepository(db *sqlx.DB) *OrderRepository {
 	return &OrderRepository{db: db}
 }
 
+// todo check in stock
 func (r *OrderRepository) Create(input jewerly.CreateOrderInput) (int, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -100,14 +101,35 @@ func (r *OrderRepository) GetOrderProducts(items []jewerly.OrderItem) ([]jewerly
 		ids += fmt.Sprintf("$%d, ", i+1)
 	}
 
-	err := r.db.Select(&products, fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s)", productsTable, ids), values...)
-	return products, err
+	err := r.db.Select(&products, fmt.Sprintf(`SELECT p.id, p.current_price, t.english as title 
+							FROM %s p INNER JOIN %s t ON t.product_id = p.id
+							WHERE p.id IN (%s)`, productsTable, titlesTable, ids), values...)
+	if err != nil {
+		return products, err
+	}
+
+	for i := range products {
+		err := r.db.Select(&products[i].Images,
+			fmt.Sprintf("SELECT i.id, i.url, i.alt_text FROM %s i INNER JOIN %s pi on pi.image_id = i.id WHERE pi.product_id=$1", imagesTable, productImagesTable),
+			products[i].Id)
+		if err != nil {
+			return products, err
+		}
+	}
+
+	return products, nil
 }
 
 func (r *OrderRepository) CreateTransaction(transactionId, cardMask, status string) error {
 	_, err := r.db.Exec(fmt.Sprintf("INSERT INTO %s (uuid, card_mask, status) VALUES ($1, $2, $3)", transactionsHistoryTable),
 		transactionId, cardMask, status)
 	return err
+}
+
+func (r *OrderRepository) GetOrderId(transactionId string) (int, error) {
+	var id int
+	err := r.db.Get(&id, fmt.Sprintf("SELECT order_id FROM %s WHERE uuid=$1", transactionsTable), transactionId)
+	return id, err
 }
 
 func (r *OrderRepository) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.OrderList, error) {
@@ -151,6 +173,7 @@ func (r *OrderRepository) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.Ord
 	return orders, nil
 }
 
+// todo implement
 func (r *OrderRepository) GetById(id int) (jewerly.Order, error) {
 	return jewerly.Order{}, nil
 }

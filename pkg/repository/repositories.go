@@ -29,6 +29,7 @@ type Order interface {
 	Create(input jewerly.CreateOrderInput) (int, error)
 	GetOrderProducts(items []jewerly.OrderItem) ([]jewerly.ProductResponse, error)
 	CreateTransaction(transactionId, cardMask, status string) error
+	GetOrderId(transactionId string) (int, error)
 	GetAll(jewerly.GetAllOrdersFilters) (jewerly.OrderList, error)
 	GetById(id int) (jewerly.Order, error)
 }

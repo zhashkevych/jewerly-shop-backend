@@ -22,7 +22,8 @@ payments:
   return_url: "https://www.example.com/payment/success"
 
 email:
-  support_email: "support@silverrain-jewelry.com"
+#  support_email: "support@silverrain-jewelry.com"
+  support_email: "zhashkevychmaksim@gmail.com"
   support_name: "Silver Rain Support"
   sender_email: "info@silverrain-jewelry.com"
   sender_name: "Silver Rain Info"

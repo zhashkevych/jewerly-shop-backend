@@ -26,7 +26,7 @@ func NewOrderService(repo repository.Order, paymentProvider payment.Provider, em
 }
 
 func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
-	totalCost, err := s.getOrderTotalCost(input.Items)
+	totalCost, products, err := s.getOrderTotalCost(input.Items)
 	if err != nil {
 		logrus.Errorf("failed to calculate total order cost: %s", err.Error())
 		return "", err
@@ -59,26 +59,29 @@ func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
 		return "", err
 	}
 
+	// send order email to support
+	emailInput := jewerly.OrderInfoEmailInput{
+		OrderId:           orderId,
+		FirstName:         input.FirstName,
+		LastName:          input.LastName,
+		Country:           input.Country,
+		Address:           input.Address,
+		PostalCode:        input.PostalCode,
+		Email:             input.Email,
+		TotalCost:         input.TotalCost,
+		TransactionId:     transactionId,
+		OrderedAt:         time.Now(),
+		TransactionStatus: jewerly.TransactionStatusCreated,
+		Products:          createOrderProductsList(input.Items, products),
+	}
+
 	go func() {
-		if err := s.emailService.SendOrderInfo(jewerly.OrderInfoEmailInput{
-			OrderId:           orderId,
-			FirstName:         input.FirstName,
-			LastName:          input.LastName,
-			Country:           input.Country,
-			Address:           input.Address,
-			PostalCode:        input.PostalCode,
-			Email:             input.Email,
-			TotalCost:         input.TotalCost,
-			TransactionId:     transactionId,
-			OrderedAt:         time.Now(),
-			TransactionStatus: jewerly.TransactionStatusCreated,
-		}); err != nil {
+		if err := s.emailService.SendOrderInfoSupport(emailInput); err != nil {
 			logrus.Errorf("failed to send order info email: %s", err.Error())
 		}
 	}()
 
-	url = fmt.Sprintf("%s?first_name=%s&last_name=%s&phone=%s&email=%s&zip_code=%s",
-		url, input.FirstName, input.LastName, input.Phone, input.Email, input.PostalCode)
+	url = urlWithParameters(url, input)
 
 	return url, nil
 }
@@ -95,10 +98,10 @@ func (s *OrderService) GetById(id int) (jewerly.Order, error) {
 	return s.repo.GetById(id)
 }
 
-func (s *OrderService) getOrderTotalCost(orderItems []jewerly.OrderItem) (float32, error) {
+func (s *OrderService) getOrderTotalCost(orderItems []jewerly.OrderItem) (float32, []jewerly.ProductResponse, error) {
 	products, err := s.repo.GetOrderProducts(orderItems)
 	if err != nil {
-		return 0, err
+		return 0, products, err
 	}
 
 	productsPriceList := make(map[int]float32)
@@ -111,7 +114,7 @@ func (s *OrderService) getOrderTotalCost(orderItems []jewerly.OrderItem) (float3
 		totalCost += productsPriceList[item.ProductId] * float32(item.Quantity)
 	}
 
-	return totalCost, nil
+	return totalCost, products, nil
 }
 
 func (s *OrderService) generateTransactionId() (string, error) {
@@ -121,4 +124,40 @@ func (s *OrderService) generateTransactionId() (string, error) {
 	}
 
 	return transactionId.String(), nil
+}
+
+func (s *OrderService) sendPaymentEmail(inp jewerly.TransactionCallbackInput) error {
+	orderId, err := s.repo.GetOrderId(inp.TransactionID)
+	if err != nil {
+		return err
+	}
+
+	return s.emailService.SendPaymentInfoSupport(jewerly.PaymentInfoEmailInput{
+		TransactionId: inp.TransactionID,
+		OrderId:       orderId,
+		CardMask:      inp.BuyerCardMask,
+		Status:        inp.NotifyType,
+	})
+}
+
+func createOrderProductsList(orderItems []jewerly.OrderItem, products []jewerly.ProductResponse) []jewerly.ProductInfo {
+	quantityList := make(map[int]int)
+	for i := range orderItems {
+		quantityList[orderItems[i].ProductId] = orderItems[i].Quantity
+	}
+
+	items := make([]jewerly.ProductInfo, len(products))
+	for i := range products {
+		items[i].Title = products[i].Title
+		items[i].Price = products[i].CurrentPrice
+		items[i].ImageURL = products[i].Images[0].URL
+		items[i].Quantity = quantityList[products[i].Id]
+	}
+
+	return items
+}
+
+func urlWithParameters(url string, input jewerly.CreateOrderInput) string {
+	return fmt.Sprintf("%s?first_name=%s&last_name=%s&phone=%s&email=%s&zip_code=%s",
+		url, input.FirstName, input.LastName, input.Phone, input.Email, input.PostalCode)
 }

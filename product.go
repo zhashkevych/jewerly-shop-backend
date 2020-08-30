@@ -7,6 +7,7 @@ import (
 
 // TODO: Image Compression
 // TODO: Email Sending
+// TODO: ADD LOGIC FOR !IN_STOCK ON ORDER
 
 // Inputs
 type CreateProductInput struct {
@@ -31,9 +32,8 @@ type UpdateProductInput struct {
 	CurrentPrice  null.Float          `json:"current_price"`
 	PreviousPrice null.Float          `json:"previous_price"`
 	Code          null.String         `json:"code"`
-	//ImageIds      []int               `json:"image_ids"`
-	CategoryId *Category `json:"category_id"`
-	InStock    null.Bool `json:"in_stock"`
+	CategoryId    *Category           `json:"category_id"`
+	InStock       null.Bool           `json:"in_stock"`
 }
 
 func (i UpdateProductInput) Validate() error {

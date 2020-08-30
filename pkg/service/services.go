@@ -51,7 +51,8 @@ type Order interface {
 }
 
 type Email interface {
-	SendOrderInfo(inp jewerly.OrderInfoEmailInput) error
+	SendOrderInfoSupport(inp jewerly.OrderInfoEmailInput) error
+	SendPaymentInfoSupport(inp jewerly.PaymentInfoEmailInput) error
 }
 
 // Services Interface, Constructor & Dependencies

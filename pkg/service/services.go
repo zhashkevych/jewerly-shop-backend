@@ -3,9 +3,10 @@ package service
 import (
 	"context"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
-	"github.com/zhashkevych/jewelry-shop-backend/payment"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/email"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
-	"github.com/zhashkevych/jewelry-shop-backend/storage"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/storage"
 	"io"
 )
 
@@ -49,6 +50,10 @@ type Order interface {
 	GetById(id int) (jewerly.Order, error)
 }
 
+type Email interface {
+	SendOrderInfo(inp jewerly.OrderInfoEmailInput) error
+}
+
 // Services Interface, Constructor & Dependencies
 type Dependencies struct {
 	Repos           *repository.Repository
@@ -56,6 +61,15 @@ type Dependencies struct {
 	HashSalt        string
 	SigningKey      []byte
 	PaymentProvider payment.Provider
+	EmailSender     email.Sender
+
+	SupportEmail string
+	SupportName  string
+	SenderEmail  string
+	SenderName   string
+
+	OrderInfoTemplate string
+	OrderInfoSubject  string
 }
 
 type Services struct {
@@ -64,13 +78,24 @@ type Services struct {
 	User
 	Product
 	Order
+	Email
 }
 
 func NewServices(deps Dependencies) *Services {
+	emailService := NewEmailService(deps.EmailSender, EmailDeps{
+		SupportEmail:      deps.SupportEmail,
+		SupportName:       deps.SupportName,
+		SenderEmail:       deps.SenderEmail,
+		SenderName:        deps.SenderName,
+		OrderInfoTemplate: deps.OrderInfoTemplate,
+		OrderInfoSubject:  deps.OrderInfoSubject,
+	})
+
 	return &Services{
 		Auth:    NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
 		Admin:   NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
 		Product: NewProductService(deps.Repos.Product, deps.FileStorage),
-		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider),
+		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider, emailService),
+		Email:   emailService,
 	}
 }

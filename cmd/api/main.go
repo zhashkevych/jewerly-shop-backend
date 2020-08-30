@@ -7,12 +7,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/zhashkevych/jewelry-shop-backend"
-	"github.com/zhashkevych/jewelry-shop-backend/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/config"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/email"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/handler"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/service"
-	"github.com/zhashkevych/jewelry-shop-backend/storage"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/storage"
 	"os"
 	"os/signal"
 	"syscall"
@@ -55,17 +56,35 @@ func main() {
 		viper.GetString("payments.endpoint"), apiKey,
 		viper.GetString("payments.return_url"), viper.GetString("payments.callback_url"))
 
+	emailPassword := os.Getenv("EMAIL_PASSWORD")
+	if apiKey == "" {
+		logrus.Fatalln("Email password is empty")
+	}
+
+	emailSender := email.NewSMTPClient(
+		viper.GetString("email.smtp.host"),
+		viper.GetString("email.smtp.port"),
+		viper.GetString("email.sender_email"),
+		emailPassword)
+
 	// Init Dependecies
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Dependencies{
-		Repos:           repos,
-		HashSalt:        viper.GetString("auth.hash_salt"),
-		SigningKey:      []byte(viper.GetString("auth.signing_key")),
-		FileStorage:     minioStorage,
-		PaymentProvider: paymentProvider,
+		Repos:             repos,
+		HashSalt:          viper.GetString("auth.hash_salt"),
+		SigningKey:        []byte(viper.GetString("auth.signing_key")),
+		FileStorage:       minioStorage,
+		PaymentProvider:   paymentProvider,
+		SupportEmail:      viper.GetString("email.support_email"),
+		SupportName:       viper.GetString("email.support_name"),
+		SenderName:        viper.GetString("email.sender_name"),
+		SenderEmail:       viper.GetString("email.sender_email"),
+		OrderInfoTemplate: viper.GetString("email.templates.order_info"),
+		OrderInfoSubject:  viper.GetString("email.subjects.order_info"),
+		EmailSender:       emailSender,
 	})
 	handlers := handler.NewHandler(services)
-
+	
 	// Create & Run HTTP Server
 	server := jewerly.NewServer()
 	go func() {

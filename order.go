@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-// todo: input validation
-
 const (
 	TransactionStatusCreated = "Created"
 )
@@ -16,7 +14,7 @@ type CreateOrderInput struct {
 	FirstName      string      `json:"first_name"  binding:"required"`
 	LastName       string      `json:"last_name"  binding:"required"`
 	AdditionalName string      `json:"additional_name"`
-	Email          string      `json:"email"  binding:"required"`
+	Email          string      `json:"email"  binding:"email,required"`
 	Phone          string      `json:"phone"`
 	Country        string      `json:"country"  binding:"required"`
 	Address        string      `json:"address"  binding:"required"`

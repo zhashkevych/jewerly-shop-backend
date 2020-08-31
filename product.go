@@ -5,10 +5,6 @@ import (
 	"gopkg.in/guregu/null.v3"
 )
 
-// TODO: Image Compression
-// TODO: Email Sending
-// TODO: ADD LOGIC FOR !IN_STOCK ON ORDER
-
 // Inputs
 type CreateProductInput struct {
 	Titles        MultiLanguageInput `json:"titles" binding:"required"`

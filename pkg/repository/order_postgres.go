@@ -15,7 +15,6 @@ func NewOrderRepository(db *sqlx.DB) *OrderRepository {
 	return &OrderRepository{db: db}
 }
 
-// todo check in stock
 func (r *OrderRepository) Create(input jewerly.CreateOrderInput) (int, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -103,7 +102,7 @@ func (r *OrderRepository) GetOrderProducts(items []jewerly.OrderItem) ([]jewerly
 
 	err := r.db.Select(&products, fmt.Sprintf(`SELECT p.id, p.current_price, t.english as title 
 							FROM %s p INNER JOIN %s t ON t.product_id = p.id
-							WHERE p.id IN (%s)`, productsTable, titlesTable, ids), values...)
+							WHERE p.id IN (%s) and p.in_stock=true`, productsTable, titlesTable, ids), values...)
 	if err != nil {
 		return products, err
 	}

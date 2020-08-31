@@ -22,8 +22,16 @@ payments:
   return_url: "https://www.example.com/payment/success"
 
 email:
-#  support_email: "support@silverrain-jewelry.com"
-  support_email: "zhashkevychmaksim@gmail.com"
+#  support:
+#    email: "support@silverrain-jewelry.com"
+#    name: "Silver Rain Support"
+#  info:
+#    email: "info@silverrain-jewelry.com"
+#    name: "Silver Rain Info"
+#  no-reply:
+#    email: "no-reply@silverrain-jewelry.com"
+#    name: "no-reply"
+  support_email: "support@silverrain-jewelry.com"
   support_name: "Silver Rain Support"
   sender_email: "info@silverrain-jewelry.com"
   sender_name: "Silver Rain Info"
@@ -31,6 +39,8 @@ email:
     host: "mail.your-server.de"
     port: ":587"
   templates:
-    order_info: "./templates/order_info.html"
+    order_info_support: "./templates/order_info_support.html"
+    order_info_customer: "./templates/order_confirmation.html"
   subjects:
-    order_info: "Order #%d - %s"
+    order_info_support: "Order #%d - %s"
+    order_info_customer: "Order #%d Confirmation"

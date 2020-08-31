@@ -60,7 +60,7 @@ func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
 	}
 
 	// send order email to support
-	emailInput := jewerly.OrderInfoEmailInput{
+	go s.sendOrderEmails(jewerly.OrderInfoEmailInput{
 		OrderId:           orderId,
 		FirstName:         input.FirstName,
 		LastName:          input.LastName,
@@ -73,13 +73,7 @@ func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
 		OrderedAt:         time.Now(),
 		TransactionStatus: jewerly.TransactionStatusCreated,
 		Products:          createOrderProductsList(input.Items, products),
-	}
-
-	go func() {
-		if err := s.emailService.SendOrderInfoSupport(emailInput); err != nil {
-			logrus.Errorf("failed to send order info email: %s", err.Error())
-		}
-	}()
+	})
 
 	url = urlWithParameters(url, input)
 
@@ -126,6 +120,16 @@ func (s *OrderService) generateTransactionId() (string, error) {
 	return transactionId.String(), nil
 }
 
+func (s *OrderService) sendOrderEmails(inp jewerly.OrderInfoEmailInput) {
+	if err := s.emailService.SendOrderInfoSupport(inp); err != nil {
+		logrus.Errorf("failed to send order info email: %s", err.Error())
+	}
+
+	if err := s.emailService.SendOrderInfoCustomer(inp); err != nil {
+		logrus.Errorf("failed to send order info email: %s", err.Error())
+	}
+}
+
 func (s *OrderService) sendPaymentEmail(inp jewerly.TransactionCallbackInput) error {
 	orderId, err := s.repo.GetOrderId(inp.TransactionID)
 	if err != nil {
@@ -148,10 +152,14 @@ func createOrderProductsList(orderItems []jewerly.OrderItem, products []jewerly.
 
 	items := make([]jewerly.ProductInfo, len(products))
 	for i := range products {
+		items[i].Id = products[i].Id
 		items[i].Title = products[i].Title
 		items[i].Price = products[i].CurrentPrice
-		items[i].ImageURL = products[i].Images[0].URL
 		items[i].Quantity = quantityList[products[i].Id]
+
+		if len(products[i].Images) > 0 {
+			items[i].ImageURL = products[i].Images[0].URL
+		}
 	}
 
 	return items

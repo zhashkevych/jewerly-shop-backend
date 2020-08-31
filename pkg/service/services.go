@@ -52,6 +52,7 @@ type Order interface {
 
 type Email interface {
 	SendOrderInfoSupport(inp jewerly.OrderInfoEmailInput) error
+	SendOrderInfoCustomer(inp jewerly.OrderInfoEmailInput) error
 	SendPaymentInfoSupport(inp jewerly.PaymentInfoEmailInput) error
 }
 
@@ -69,8 +70,11 @@ type Dependencies struct {
 	SenderEmail  string
 	SenderName   string
 
-	OrderInfoTemplate string
-	OrderInfoSubject  string
+	OrderInfoSupportTemplate string
+	OrderInfoSupportSubject  string
+
+	OrderInfoCustomerTemplate string
+	OrderInfoCustomerSubject  string
 }
 
 type Services struct {
@@ -84,12 +88,14 @@ type Services struct {
 
 func NewServices(deps Dependencies) *Services {
 	emailService := NewEmailService(deps.EmailSender, EmailDeps{
-		SupportEmail:      deps.SupportEmail,
-		SupportName:       deps.SupportName,
-		SenderEmail:       deps.SenderEmail,
-		SenderName:        deps.SenderName,
-		OrderInfoTemplate: deps.OrderInfoTemplate,
-		OrderInfoSubject:  deps.OrderInfoSubject,
+		SupportEmail:              deps.SupportEmail,
+		SupportName:               deps.SupportName,
+		SenderEmail:               deps.SenderEmail,
+		SenderName:                deps.SenderName,
+		OrderInfoSupportTemplate:  deps.OrderInfoSupportTemplate,
+		OrderInfoSupportSubject:   deps.OrderInfoSupportSubject,
+		OrderInfoCustomerTemplate: deps.OrderInfoCustomerTemplate,
+		OrderInfoCustomerSubject:  deps.OrderInfoCustomerSubject,
 	})
 
 	return &Services{

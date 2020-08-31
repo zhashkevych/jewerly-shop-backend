@@ -7,6 +7,8 @@ import (
 
 const (
 	TransactionStatusCreated = "Created"
+	TransactionStatusPaid    = "Paid"
+	TransactionStatusFailed  = "Payment Failed"
 )
 
 type CreateOrderInput struct {

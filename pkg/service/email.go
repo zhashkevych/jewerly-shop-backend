@@ -13,8 +13,11 @@ type EmailDeps struct {
 	SupportName  string
 	SenderName   string
 
-	OrderInfoTemplate string
-	OrderInfoSubject  string
+	OrderInfoSupportTemplate string
+	OrderInfoSupportSubject  string
+
+	OrderInfoCustomerTemplate string
+	OrderInfoCustomerSubject  string
 }
 
 type EmailService struct {
@@ -32,12 +35,30 @@ func (s *EmailService) SendOrderInfoSupport(inp jewerly.OrderInfoEmailInput) err
 		ToEmail:   s.SupportEmail,
 		FromEmail: s.SenderEmail,
 		FromName:  s.SenderName,
-		Subject:   fmt.Sprintf(s.OrderInfoSubject, inp.OrderId, inp.TransactionStatus),
+		Subject:   fmt.Sprintf(s.OrderInfoSupportSubject, inp.OrderId, inp.TransactionStatus),
 	}
 
-	inp.OrderedAtFormated = inp.OrderedAt.Format(time.RFC3339)
+	inp.OrderedAtFormated = inp.OrderedAt.Format(time.RFC822)
 
-	if err := message.GenerateBodyFromHTML(s.OrderInfoTemplate, inp); err != nil {
+	if err := message.GenerateBodyFromHTML(s.OrderInfoSupportTemplate, inp); err != nil {
+		return err
+	}
+
+	return s.client.Send(message)
+}
+
+func (s *EmailService) SendOrderInfoCustomer(inp jewerly.OrderInfoEmailInput) error {
+	message := email.Email{
+		ToName:    inp.FirstName,
+		ToEmail:   inp.Email,
+		FromEmail: s.SenderEmail,
+		FromName:  s.SenderName,
+		Subject:   fmt.Sprintf(s.OrderInfoCustomerSubject, inp.OrderId),
+	}
+
+	inp.OrderedAtFormated = inp.OrderedAt.Format(time.RFC822)
+
+	if err := message.GenerateBodyFromHTML(s.OrderInfoCustomerTemplate, inp); err != nil {
 		return err
 	}
 
@@ -50,12 +71,12 @@ func (s *EmailService) SendPaymentInfoSupport(inp jewerly.PaymentInfoEmailInput)
 	//	ToEmail:   s.SupportEmail,
 	//	FromEmail: s.SenderEmail,
 	//	FromName:  s.SenderName,
-	//	Subject:   fmt.Sprintf(s.OrderInfoSubject, inp.OrderId, inp.TransactionStatus),
+	//	Subject:   fmt.Sprintf(s.OrderInfoSupportSubject, inp.OrderId, inp.TransactionStatus),
 	//}
 	//
 	//inp.OrderedAtFormated = inp.OrderedAt.Format(time.RFC3339)
 	//
-	//if err := message.GenerateBodyFromHTML(s.OrderInfoTemplate, inp); err != nil {
+	//if err := message.GenerateBodyFromHTML(s.OrderInfoSupportTemplate, inp); err != nil {
 	//	return err
 	//}
 	//

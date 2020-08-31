@@ -24,6 +24,7 @@ type OrderInfoEmailInput struct {
 }
 
 type ProductInfo struct {
+	Id       int
 	Title    string
 	Quantity int
 	Price    float32

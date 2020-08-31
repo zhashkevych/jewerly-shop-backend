@@ -70,21 +70,23 @@ func main() {
 	// Init Dependecies
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Dependencies{
-		Repos:             repos,
-		HashSalt:          viper.GetString("auth.hash_salt"),
-		SigningKey:        []byte(viper.GetString("auth.signing_key")),
-		FileStorage:       minioStorage,
-		PaymentProvider:   paymentProvider,
-		SupportEmail:      viper.GetString("email.support_email"),
-		SupportName:       viper.GetString("email.support_name"),
-		SenderName:        viper.GetString("email.sender_name"),
-		SenderEmail:       viper.GetString("email.sender_email"),
-		OrderInfoTemplate: viper.GetString("email.templates.order_info"),
-		OrderInfoSubject:  viper.GetString("email.subjects.order_info"),
-		EmailSender:       emailSender,
+		Repos:                     repos,
+		HashSalt:                  viper.GetString("auth.hash_salt"),
+		SigningKey:                []byte(viper.GetString("auth.signing_key")),
+		FileStorage:               minioStorage,
+		PaymentProvider:           paymentProvider,
+		SupportEmail:              viper.GetString("email.support_email"),
+		SupportName:               viper.GetString("email.support_name"),
+		SenderName:                viper.GetString("email.sender_name"),
+		SenderEmail:               viper.GetString("email.sender_email"),
+		OrderInfoSupportTemplate:  viper.GetString("email.templates.order_info_support"),
+		OrderInfoSupportSubject:   viper.GetString("email.subjects.order_info_support"),
+		OrderInfoCustomerTemplate: viper.GetString("email.templates.order_info_customer"),
+		OrderInfoCustomerSubject:  viper.GetString("email.subjects.order_info_customer"),
+		EmailSender:               emailSender,
 	})
 	handlers := handler.NewHandler(services)
-	
+
 	// Create & Run HTTP Server
 	server := jewerly.NewServer()
 	go func() {

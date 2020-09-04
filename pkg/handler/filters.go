@@ -32,7 +32,7 @@ func getProductFilters(c *gin.Context) jewerly.GetAllProductsFilters {
 	}
 
 	categoryId, err := strconv.Atoi(c.Query("category"))
-	if err == nil {
+	if err == nil && categoryId != 0 {
 		filters.CategoryId = null.NewInt(int64(categoryId), true)
 	}
 

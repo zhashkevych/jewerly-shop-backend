@@ -93,6 +93,7 @@ const (
 	CategoryPendants
 	CategoryEarring
 	CategoryNecklaces
+	CategorySets
 
 	English    = "english"
 	Ukraininan = "ukrainian"
@@ -106,6 +107,7 @@ var (
 		CategoryPendants:  true,
 		CategoryEarring:   true,
 		CategoryNecklaces: true,
+		CategorySets:      true,
 	}
 
 	languageQueries = map[string]string{

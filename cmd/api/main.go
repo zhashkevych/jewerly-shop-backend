@@ -14,6 +14,7 @@ import (
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/service"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/storage"
+	"io"
 	"os"
 	"os/signal"
 	"syscall"
@@ -29,7 +30,8 @@ func init() {
 		logrus.Fatal(err)
 	}
 
-	logrus.SetOutput(file)
+	mw := io.MultiWriter(os.Stdout, file)
+	logrus.SetOutput(mw)
 
 	if err := config.Init(); err != nil {
 		logrus.Fatalf("error loading config: %s\n", err.Error())
@@ -111,6 +113,8 @@ func main() {
 			logrus.Errorf("Error occurred while running server: %s\n", err.Error())
 		}
 	}()
+
+	logrus.Info("Application Started")
 
 	// graceful shutdown
 	quit := make(chan os.Signal, 1)

@@ -18,6 +18,12 @@ type EmailDeps struct {
 
 	OrderInfoCustomerTemplate string
 	OrderInfoCustomerSubject  string
+
+	PaymentInfoSupportTemplate string
+	PaymentInfoSupportSubject  string
+
+	PaymentInfoCustomerTemplate string
+	PaymentInfoCustomerSubject  string
 }
 
 type EmailService struct {
@@ -66,20 +72,33 @@ func (s *EmailService) SendOrderInfoCustomer(inp jewerly.OrderInfoEmailInput) er
 }
 
 func (s *EmailService) SendPaymentInfoSupport(inp jewerly.PaymentInfoEmailInput) error {
-	//message := email.Email{
-	//	ToName:    s.SupportName,
-	//	ToEmail:   s.SupportEmail,
-	//	FromEmail: s.SenderEmail,
-	//	FromName:  s.SenderName,
-	//	Subject:   fmt.Sprintf(s.OrderInfoSupportSubject, inp.OrderId, inp.TransactionStatus),
-	//}
-	//
-	//inp.OrderedAtFormated = inp.OrderedAt.Format(time.RFC3339)
-	//
-	//if err := message.GenerateBodyFromHTML(s.OrderInfoSupportTemplate, inp); err != nil {
-	//	return err
-	//}
-	//
-	//return s.client.Send(message)
-	return nil
+	message := email.Email{
+		ToName:    s.SupportName,
+		ToEmail:   s.SupportEmail,
+		FromEmail: s.SenderEmail,
+		FromName:  s.SenderName,
+		Subject:   fmt.Sprintf(s.PaymentInfoSupportSubject, inp.OrderId, inp.Status),
+	}
+
+	if err := message.GenerateBodyFromHTML(s.PaymentInfoSupportTemplate, inp); err != nil {
+		return err
+	}
+
+	return s.client.Send(message)
+}
+
+func (s *EmailService) SendPaymentInfoCustomer(inp jewerly.PaymentInfoEmailInput) error {
+	message := email.Email{
+		ToName:    inp.BuyerName,
+		ToEmail:   inp.BuyerEmail,
+		FromEmail: s.SenderEmail,
+		FromName:  s.SenderName,
+		Subject:   fmt.Sprintf(s.PaymentInfoCustomerSubject, inp.OrderId, inp.Status),
+	}
+
+	if err := message.GenerateBodyFromHTML(s.PaymentInfoCustomerTemplate, inp); err != nil {
+		return err
+	}
+
+	return s.client.Send(message)
 }

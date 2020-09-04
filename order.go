@@ -6,9 +6,13 @@ import (
 )
 
 const (
-	TransactionStatusCreated = "Created"
-	TransactionStatusPaid    = "Paid"
-	TransactionStatusFailed  = "Payment Failed"
+	TransactionStatusCreated    = "Created"
+	TransactionStatusPaid       = "Paid"
+	TransactionStatusFailed     = "Payment Failed"
+	TransactionStatusAuthorized = "Payment Authorized"
+	TransactionStatusRefunded   = "Payment Refunded"
+	TransactionStatusChargeback = "Payment Chargeback"
+	TransactionStatusReverted   = "Payment Reverted"
 )
 
 type CreateOrderInput struct {
@@ -38,6 +42,9 @@ type TransactionCallbackInput struct {
 	SaleCreated        string `form:"sale_created"`
 	TransactionID      string `form:"transaction_id"`
 	SaleStatus         string `form:"sale_status"`
+	CardBrand          string `form:"payme_transaction_card_brand"`
+	Currency           string `form:"currency"`
+	Price              int    `form:"price"`
 	BuyerCardMask      string `form:"buyer_card_mask"`
 	BuyerCardExp       string `form:"buyer_card_exp"`
 	BuyerName          string `form:"buyer_name"`

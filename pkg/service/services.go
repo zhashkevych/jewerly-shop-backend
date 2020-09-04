@@ -45,7 +45,7 @@ type Product interface {
 
 type Order interface {
 	Create(jewerly.CreateOrderInput) (string, error)
-	ProcessCallback(jewerly.TransactionCallbackInput) error
+	ProcessCallback(jewerly.TransactionCallbackInput)
 	GetAll(jewerly.GetAllOrdersFilters) (jewerly.OrderList, error)
 	GetById(id int) (jewerly.Order, error)
 }
@@ -54,6 +54,7 @@ type Email interface {
 	SendOrderInfoSupport(inp jewerly.OrderInfoEmailInput) error
 	SendOrderInfoCustomer(inp jewerly.OrderInfoEmailInput) error
 	SendPaymentInfoSupport(inp jewerly.PaymentInfoEmailInput) error
+	SendPaymentInfoCustomer(inp jewerly.PaymentInfoEmailInput) error
 }
 
 // Services Interface, Constructor & Dependencies
@@ -75,6 +76,12 @@ type Dependencies struct {
 
 	OrderInfoCustomerTemplate string
 	OrderInfoCustomerSubject  string
+
+	PaymentInfoSupportTemplate string
+	PaymentInfoSupportSubject  string
+
+	PaymentInfoCustomerTemplate string
+	PaymentInfoCustomerSubject  string
 }
 
 type Services struct {
@@ -88,14 +95,22 @@ type Services struct {
 
 func NewServices(deps Dependencies) *Services {
 	emailService := NewEmailService(deps.EmailSender, EmailDeps{
-		SupportEmail:              deps.SupportEmail,
-		SupportName:               deps.SupportName,
-		SenderEmail:               deps.SenderEmail,
-		SenderName:                deps.SenderName,
-		OrderInfoSupportTemplate:  deps.OrderInfoSupportTemplate,
-		OrderInfoSupportSubject:   deps.OrderInfoSupportSubject,
+		SupportEmail: deps.SupportEmail,
+		SupportName:  deps.SupportName,
+		SenderEmail:  deps.SenderEmail,
+		SenderName:   deps.SenderName,
+
+		OrderInfoSupportTemplate: deps.OrderInfoSupportTemplate,
+		OrderInfoSupportSubject:  deps.OrderInfoSupportSubject,
+
 		OrderInfoCustomerTemplate: deps.OrderInfoCustomerTemplate,
 		OrderInfoCustomerSubject:  deps.OrderInfoCustomerSubject,
+
+		PaymentInfoSupportTemplate: deps.PaymentInfoSupportTemplate,
+		PaymentInfoSupportSubject:  deps.PaymentInfoSupportSubject,
+
+		PaymentInfoCustomerTemplate: deps.PaymentInfoCustomerTemplate,
+		PaymentInfoCustomerSubject:  deps.PaymentInfoCustomerSubject,
 	})
 
 	return &Services{

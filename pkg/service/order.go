@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -14,6 +15,15 @@ const (
 	defaultCurrency = "USD"
 	timeFomrat      = "2006-01-02 15:04:05"
 )
+
+var paymentStatuses = map[string]string{
+	"sale-complete":          jewerly.TransactionStatusPaid,
+	"sale-authorized":        jewerly.TransactionStatusAuthorized,
+	"refund":                 jewerly.TransactionStatusRefunded,
+	"sale-failure":           jewerly.TransactionStatusFailed,
+	"sale-chargeback":        jewerly.TransactionStatusChargeback,
+	"sale-chargeback-refund": jewerly.TransactionStatusReverted,
+}
 
 type OrderService struct {
 	repo            repository.Order
@@ -80,8 +90,14 @@ func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
 	return url, nil
 }
 
-func (s *OrderService) ProcessCallback(inp jewerly.TransactionCallbackInput) error {
-	return s.repo.CreateTransaction(inp.TransactionID, inp.BuyerCardMask, inp.NotifyType)
+func (s *OrderService) ProcessCallback(inp jewerly.TransactionCallbackInput) {
+	err := s.repo.CreateTransaction(inp.TransactionID, inp.BuyerCardMask, inp.NotifyType)
+	if err != nil {
+		logrus.Errorf("failed to create transaction on callback: %s", err.Error())
+		return
+	}
+
+	go s.sendPaymentEmail(inp)
 }
 
 func (s *OrderService) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.OrderList, error) {
@@ -130,18 +146,42 @@ func (s *OrderService) sendOrderEmails(inp jewerly.OrderInfoEmailInput) {
 	}
 }
 
-func (s *OrderService) sendPaymentEmail(inp jewerly.TransactionCallbackInput) error {
-	orderId, err := s.repo.GetOrderId(inp.TransactionID)
+func (s *OrderService) sendPaymentEmail(inp jewerly.TransactionCallbackInput) {
+	status, err := getPaymentStatus(inp.NotifyType)
 	if err != nil {
-		return err
+		logrus.Errorf("transactionId: %s, err: %s", inp.TransactionID, err.Error())
+		return
 	}
 
-	return s.emailService.SendPaymentInfoSupport(jewerly.PaymentInfoEmailInput{
+	if status != jewerly.TransactionStatusPaid {
+		logrus.Errorf("transactionId: %s, status: %s", inp.TransactionID, status)
+		return
+	}
+
+	orderId, err := s.repo.GetOrderId(inp.TransactionID)
+	if err != nil {
+		logrus.Errorf("failed to get order by transaction id: %s", err.Error())
+		return
+	}
+
+	emailInput := jewerly.PaymentInfoEmailInput{
 		TransactionId: inp.TransactionID,
 		OrderId:       orderId,
 		CardMask:      inp.BuyerCardMask,
-		Status:        inp.NotifyType,
-	})
+		CardBrand:     inp.CardBrand,
+		BuyerName:     inp.BuyerName,
+		BuyerEmail:    inp.BuyerEmail,
+		Price:         float32(inp.Price) / 100,
+		Status:        status,
+	}
+
+	if err := s.emailService.SendPaymentInfoSupport(emailInput); err != nil {
+		logrus.Errorf("failed to send payment info support email: %s", err.Error())
+	}
+
+	if err := s.emailService.SendPaymentInfoCustomer(emailInput); err != nil {
+		logrus.Errorf("failed to send payment info customer email: %s", err.Error())
+	}
 }
 
 func createOrderProductsList(orderItems []jewerly.OrderItem, products []jewerly.ProductResponse) []jewerly.ProductInfo {
@@ -168,4 +208,13 @@ func createOrderProductsList(orderItems []jewerly.OrderItem, products []jewerly.
 func urlWithParameters(url string, input jewerly.CreateOrderInput) string {
 	return fmt.Sprintf("%s?first_name=%s&last_name=%s&phone=%s&email=%s&zip_code=%s",
 		url, input.FirstName, input.LastName, input.Phone, input.Email, input.PostalCode)
+}
+
+func getPaymentStatus(notifyType string) (string, error) {
+	status, ok := paymentStatuses[notifyType]
+	if !ok {
+		return jewerly.TransactionStatusFailed, errors.New(fmt.Sprintf("notify type %s missing", notifyType))
+	}
+
+	return status, nil
 }

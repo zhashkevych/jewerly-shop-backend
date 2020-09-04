@@ -4,8 +4,6 @@ import (
 	"time"
 )
 
-// todo: bind transaction statuses with custom statuses
-
 type OrderInfoEmailInput struct {
 	OrderId           int
 	FirstName         string
@@ -35,5 +33,10 @@ type PaymentInfoEmailInput struct {
 	TransactionId string
 	OrderId       int
 	CardMask      string
+	CardBrand     string
+	Price         float32
+	Currency      string
+	BuyerName     string
+	BuyerEmail    string
 	Status        string
 }

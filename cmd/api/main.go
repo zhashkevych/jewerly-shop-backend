@@ -64,26 +64,35 @@ func main() {
 	emailSender := email.NewSMTPClient(
 		viper.GetString("email.smtp.host"),
 		viper.GetString("email.smtp.port"),
-		viper.GetString("email.sender_email"),
+		viper.GetString("email.sender.email"),
 		emailPassword)
 
 	// Init Dependecies
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Dependencies{
-		Repos:                     repos,
-		HashSalt:                  viper.GetString("auth.hash_salt"),
-		SigningKey:                []byte(viper.GetString("auth.signing_key")),
-		FileStorage:               minioStorage,
-		PaymentProvider:           paymentProvider,
-		SupportEmail:              viper.GetString("email.support_email"),
-		SupportName:               viper.GetString("email.support_name"),
-		SenderName:                viper.GetString("email.sender_name"),
-		SenderEmail:               viper.GetString("email.sender_email"),
-		OrderInfoSupportTemplate:  viper.GetString("email.templates.order_info_support"),
-		OrderInfoSupportSubject:   viper.GetString("email.subjects.order_info_support"),
+		Repos:           repos,
+		HashSalt:        viper.GetString("auth.hash_salt"),
+		SigningKey:      []byte(viper.GetString("auth.signing_key")),
+		FileStorage:     minioStorage,
+		PaymentProvider: paymentProvider,
+		SupportEmail:    viper.GetString("email.support.email"),
+		SupportName:     viper.GetString("email.support.name"),
+		SenderName:      viper.GetString("email.sender.name"),
+		SenderEmail:     viper.GetString("email.sender.email"),
+
+		OrderInfoSupportTemplate: viper.GetString("email.templates.order_info_support"),
+		OrderInfoSupportSubject:  viper.GetString("email.subjects.order_info_support"),
+
 		OrderInfoCustomerTemplate: viper.GetString("email.templates.order_info_customer"),
 		OrderInfoCustomerSubject:  viper.GetString("email.subjects.order_info_customer"),
-		EmailSender:               emailSender,
+
+		PaymentInfoSupportTemplate: viper.GetString("email.templates.payment_info_support"),
+		PaymentInfoSupportSubject:  viper.GetString("email.subjects.payment_info_support"),
+
+		PaymentInfoCustomerTemplate: viper.GetString("email.templates.payment_info_customer"),
+		PaymentInfoCustomerSubject:  viper.GetString("email.subjects.payment_info_customer"),
+
+		EmailSender: emailSender,
 	})
 	handlers := handler.NewHandler(services)
 

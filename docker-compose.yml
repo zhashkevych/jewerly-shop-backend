@@ -5,6 +5,8 @@ services:
     image: jewelry-shop
     container_name: "jewelry-shop"
     build: ./
+    volumes:
+      - ./.build/volumes/logs:/logs
     env_file:
       - .env
     ports:

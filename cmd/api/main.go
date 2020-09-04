@@ -22,6 +22,14 @@ import (
 
 func init() {
 	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	file, err := os.OpenFile("/logs/api.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	logrus.SetOutput(file)
 
 	if err := config.Init(); err != nil {
 		logrus.Fatalf("error loading config: %s\n", err.Error())

@@ -116,7 +116,7 @@ func (s *OrderService) getOrderTotalCost(orderItems []jewerly.OrderItem) (float3
 
 	productsPriceList := make(map[int]float32)
 	for _, product := range products {
-		productsPriceList[product.Id] = product.CurrentPrice
+		productsPriceList[product.Id] = product.Price
 	}
 
 	var totalCost float32
@@ -194,7 +194,7 @@ func createOrderProductsList(orderItems []jewerly.OrderItem, products []jewerly.
 	for i := range products {
 		items[i].Id = products[i].Id
 		items[i].Title = products[i].Title
-		items[i].Price = products[i].CurrentPrice
+		items[i].Price = products[i].Price
 		items[i].Quantity = quantityList[products[i].Id]
 
 		if len(products[i].Images) > 0 {

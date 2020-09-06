@@ -7,14 +7,13 @@ import (
 
 // Inputs
 type CreateProductInput struct {
-	Titles        MultiLanguageInput `json:"titles" binding:"required"`
-	Descriptions  MultiLanguageInput `json:"descriptions" binding:"required"`
-	Material      MultiLanguageInput `json:"materials" binding:"required"`
-	CurrentPrice  float32            `json:"current_price" binding:"required"`
-	PreviousPrice float32            `json:"previous_price"`
-	Code          string             `json:"code" binding:"required"`
-	ImageIds      []int              `json:"image_ids" binding:"required"`
-	CategoryId    Category           `json:"category_id" binding:"required"`
+	Titles       MultiLanguageInput `json:"titles" binding:"required"`
+	Descriptions MultiLanguageInput `json:"descriptions" binding:"required"`
+	Material     MultiLanguageInput `json:"materials" binding:"required"`
+	Price        MultiCurrencyInput `json:"price" binding:"required"`
+	Code         string             `json:"code" binding:"required"`
+	ImageIds     []int              `json:"image_ids" binding:"required"`
+	CategoryId   Category           `json:"category_id" binding:"required"`
 }
 
 func (i CreateProductInput) Validate() error {
@@ -22,14 +21,13 @@ func (i CreateProductInput) Validate() error {
 }
 
 type UpdateProductInput struct {
-	Titles        *MultiLanguageInput `json:"titles"`
-	Descriptions  *MultiLanguageInput `json:"descriptions"`
-	Material      *MultiLanguageInput `json:"materials"`
-	CurrentPrice  null.Float          `json:"current_price"`
-	PreviousPrice null.Float          `json:"previous_price"`
-	Code          null.String         `json:"code"`
-	CategoryId    *Category           `json:"category_id"`
-	InStock       null.Bool           `json:"in_stock"`
+	Titles       *MultiLanguageInput `json:"titles"`
+	Descriptions *MultiLanguageInput `json:"descriptions"`
+	Material     *MultiLanguageInput `json:"materials"`
+	Price        *MultiCurrencyInput `json:"price"`
+	Code         null.String         `json:"code"`
+	CategoryId   *Category           `json:"category_id"`
+	InStock      null.Bool           `json:"in_stock"`
 }
 
 func (i UpdateProductInput) Validate() error {
@@ -42,8 +40,15 @@ type MultiLanguageInput struct {
 	Ukrainian string `json:"ukrainian" binding:"required"`
 }
 
+type MultiCurrencyInput struct {
+	USD float32 `json:"usd" binding:"required"`
+	EUR float32 `json:"eur" binding:"required"`
+	UAH float32 `json:"uah" binding:"required"`
+}
+
 type GetAllProductsFilters struct {
 	Language   string
+	Currency   string
 	Offset     int
 	Limit      int
 	CategoryId null.Int
@@ -51,16 +56,15 @@ type GetAllProductsFilters struct {
 
 // Responses
 type ProductResponse struct {
-	Id            int         `json:"id" db:"id"`
-	Title         string      `json:"title" db:"title"`
-	Description   string      `json:"description" db:"description"`
-	Material      string      `json:"material" db:"material"`
-	CurrentPrice  float32     `json:"current_price" db:"current_price"`
-	PreviousPrice null.Float  `json:"previous_price" db:"previous_price"`
-	Code          null.String `json:"code" db:"code"`
-	Images        []Image     `json:"images"`
-	CategoryId    Category    `json:"category_id" db:"category_id"`
-	InStock       bool        `json:"in_stock" db:"in_stock"`
+	Id          int         `json:"id" db:"id"`
+	Title       string      `json:"title" db:"title"`
+	Description string      `json:"description" db:"description"`
+	Material    string      `json:"material" db:"material"`
+	Price       float32     `json:"price" db:"price"`
+	Code        null.String `json:"code" db:"code"`
+	Images      []Image     `json:"images"`
+	CategoryId  Category    `json:"category_id" db:"category_id"`
+	InStock     bool        `json:"in_stock" db:"in_stock"`
 }
 
 type Image struct {
@@ -98,6 +102,10 @@ const (
 	English    = "english"
 	Ukraininan = "ukrainian"
 	Russian    = "russian"
+
+	USD = "usd"
+	EUR = "eur"
+	UAH = "uah"
 )
 
 var (
@@ -126,4 +134,15 @@ func GetLanguageFromQuery(query string) string {
 	}
 
 	return English
+}
+
+func GetCurrencyFromQuery(query string) string {
+	switch query {
+	case EUR:
+		return EUR
+	case UAH:
+		return UAH
+	default:
+		return USD
+	}
 }

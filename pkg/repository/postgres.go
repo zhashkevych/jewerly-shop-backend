@@ -7,7 +7,6 @@ import (
 
 const (
 	userTable                = "users"
-	categoriesTable          = "categories"
 	titlesTable              = "titles"
 	descriptionsTable        = "descriptions"
 	materialsTable           = "materials"
@@ -19,6 +18,7 @@ const (
 	transactionsTable        = "transactions"
 	transactionsHistoryTable = "transactions_history"
 	adminUsersTable          = "admin_users"
+	pricesTable              = "prices"
 )
 
 type Config struct {

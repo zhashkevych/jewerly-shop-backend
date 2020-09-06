@@ -1,1 +1,0 @@
-ALTER TABLE products ADD COLUMN in_stock bool DEFAULT true;

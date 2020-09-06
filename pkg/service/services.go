@@ -37,7 +37,7 @@ type User interface {
 type Product interface {
 	Create(jewerly.CreateProductInput) error
 	GetAll(jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
-	GetById(id int, language string) (jewerly.ProductResponse, error)
+	GetById(id int, language, currency string) (jewerly.ProductResponse, error)
 	Update(id int, inp jewerly.UpdateProductInput) error
 	Delete(id int) error
 	UploadImage(ctx context.Context, file io.Reader, size int64, contentType string) (int, error)

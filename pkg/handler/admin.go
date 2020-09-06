@@ -136,8 +136,9 @@ func (h *Handler) getProduct(c *gin.Context) {
 	}
 
 	language := jewerly.GetLanguageFromQuery(c.Query("language"))
+	currency := jewerly.GetCurrencyFromQuery(c.Query("currency"))
 
-	product, err := h.services.Product.GetById(id, language)
+	product, err := h.services.Product.GetById(id, language, currency)
 	if err != nil {
 		logrus.Errorf("Failed to delete product: %s\n", err.Error())
 		newErrorResponse(c, getStatusCode(err), err)

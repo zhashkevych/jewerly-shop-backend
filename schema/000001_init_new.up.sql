@@ -118,6 +118,93 @@ CREATE TABLE transactions_history
     "created_at" timestamp    NOT NULL DEFAULT NOW()
 );
 
+-- Site Settings
+
+CREATE TABLE header_text
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
+CREATE TABLE text_block_1
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
+CREATE TABLE text_block_2
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
+CREATE TABLE customer_service
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
+CREATE TABLE about_us
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
+CREATE TABLE privacy_policy
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
+CREATE TABLE terms_and_conditions
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
+CREATE TABLE social_links
+(
+    "id"             serial                     NOT NULL UNIQUE,
+    "social_network" varchar(255)               NOT NULL,
+    "url"            varchar(255)               NOT NULL,
+    "image_id"       int REFERENCES images (id) NOT NULL
+);
+
+CREATE TABLE shipping_and_returns
+(
+    "id"        serial       NOT NULL UNIQUE,
+    "english"   varchar(255) NOT NULL,
+    "russian"   varchar(255) NOT NULL,
+    "ukrainian" varchar(255) NOT NULL
+);
+
+CREATE TABLE front_page_images
+(
+    "id"       serial                     NOT NULL UNIQUE,
+    "image_id" int REFERENCES images (id) NOT NULL
+);
+
+CREATE TABLE settings
+(
+    "minimal_order_price" int                        NOT NULL,
+    "store_name"          varchar(255)               NOT NULL,
+    "logo_image_id"       int REFERENCES images (id) NOT NULL
+);
+
 -- Admin Panel
 
 CREATE TABLE admin_users

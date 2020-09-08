@@ -90,5 +90,8 @@ func (h *Handler) initAdminRoutes(router *gin.Engine) {
 		admin.GET("/orders/:id", h.getOrder)
 		// product images
 		admin.POST("/upload", h.uploadImage)
+
+		// settings
+		admin.PUT("/settings")
 	}
 }

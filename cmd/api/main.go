@@ -103,6 +103,8 @@ func main() {
 		PaymentInfoCustomerSubject:  viper.GetString("email.subjects.payment_info_customer"),
 
 		EmailSender: emailSender,
+
+		MinimalOrderSum: float32(viper.GetFloat64("minimal_order_sum")),
 	})
 	handlers := handler.NewHandler(services)
 

@@ -1,5 +1,7 @@
 port: 8000
 
+minimal_order_sum: 400
+
 auth:
   hash_salt: "PIxP1o559vv5SQGiOEat"
   signing_key: "PIxP1o559vv5SQGiOEat"

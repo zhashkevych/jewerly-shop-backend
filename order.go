@@ -1,6 +1,7 @@
 package jewerly
 
 import (
+	"errors"
 	"gopkg.in/guregu/null.v3"
 	"time"
 )
@@ -13,6 +14,10 @@ const (
 	TransactionStatusRefunded   = "Payment Refunded"
 	TransactionStatusChargeback = "Payment Chargeback"
 	TransactionStatusReverted   = "Payment Reverted"
+)
+
+var (
+	ErrOrderSumLow = errors.New("order sum is too low")
 )
 
 type CreateOrderInput struct {

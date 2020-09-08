@@ -82,6 +82,8 @@ type Dependencies struct {
 
 	PaymentInfoCustomerTemplate string
 	PaymentInfoCustomerSubject  string
+
+	MinimalOrderSum float32
 }
 
 type Services struct {
@@ -117,7 +119,7 @@ func NewServices(deps Dependencies) *Services {
 		Auth:    NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
 		Admin:   NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
 		Product: NewProductService(deps.Repos.Product, deps.FileStorage),
-		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider, emailService),
+		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider, emailService, deps.MinimalOrderSum),
 		Email:   emailService,
 	}
 }

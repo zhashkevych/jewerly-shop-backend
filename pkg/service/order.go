@@ -29,18 +29,24 @@ type OrderService struct {
 	repo            repository.Order
 	paymentProvider payment.Provider
 	emailService    Email
+	minimalOrderSum float32
 }
 
-func NewOrderService(repo repository.Order, paymentProvider payment.Provider, emailService Email) *OrderService {
-	return &OrderService{repo: repo, paymentProvider: paymentProvider, emailService: emailService}
+func NewOrderService(repo repository.Order, paymentProvider payment.Provider, emailService Email, minimalOrderSum float32) *OrderService {
+	return &OrderService{repo: repo, paymentProvider: paymentProvider, emailService: emailService, minimalOrderSum: minimalOrderSum}
 }
 
 func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
 	totalCost, products, err := s.getOrderTotalCost(input.Items)
 	if err != nil {
-		logrus.Errorf("failed to calculate total order cost: %s", err.Error())
+		logrus.Errorf("failed to get total order cost: %s", err.Error())
 		return "", err
 	}
+
+	if totalCost < s.minimalOrderSum {
+		return "", jewerly.ErrOrderSumLow
+	}
+
 	input.TotalCost = totalCost
 
 	transactionId, err := s.generateTransactionId()

@@ -13,7 +13,7 @@ type OrderInfoEmailInput struct {
 	PostalCode        string
 	Email             string
 	CardMask          string
-	TotalCost         float32
+	TotalCost         string
 	TransactionId     string
 	TransactionStatus string
 	OrderedAt         time.Time

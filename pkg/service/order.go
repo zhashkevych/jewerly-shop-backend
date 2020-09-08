@@ -84,7 +84,7 @@ func (s *OrderService) Create(input jewerly.CreateOrderInput) (string, error) {
 		Address:           input.Address,
 		PostalCode:        input.PostalCode,
 		Email:             input.Email,
-		TotalCost:         input.TotalCost,
+		TotalCost:         fmt.Sprintf("%.2f", input.TotalCost),
 		TransactionId:     transactionId,
 		OrderedAt:         time.Now(),
 		TransactionStatus: jewerly.TransactionStatusCreated,

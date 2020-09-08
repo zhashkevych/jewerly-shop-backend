@@ -171,7 +171,31 @@ func (r *OrderRepository) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.Ord
 	return orders, nil
 }
 
-// todo implement
 func (r *OrderRepository) GetById(id int) (jewerly.Order, error) {
-	return jewerly.Order{}, nil
+	var order jewerly.Order
+
+	selectOrdersQuery := fmt.Sprintf(`SELECT id, ordered_at, first_name, last_name, additional_name, country,
+										address, email, postal_code, total_cost FROM %s WHERE id=$1`, ordersTable)
+	err := r.db.Get(&order, selectOrdersQuery, id)
+	if err != nil {
+		logrus.Errorf("failed to get orders: %s", err.Error())
+		return order, err
+	}
+
+	selectOrderItemsQuery := fmt.Sprintf("SELECT product_id, quantity FROM %s WHERE order_id = $1", orderItemsTable)
+	err = r.db.Select(&order.Items, selectOrderItemsQuery, id)
+	if err != nil {
+		logrus.Errorf("failed to get order items for order id %d, error: %s", id, err.Error())
+		return order, err
+	}
+
+	selectTransactionsQuery := fmt.Sprintf(`SELECT th.uuid, th.created_at, th.status, th.card_mask FROM %s th 
+											INNER JOIN %s t on t.uuid = th.uuid WHERE t.order_id = $1`, transactionsHistoryTable, transactionsTable)
+	err = r.db.Select(&order.Transactions, selectTransactionsQuery, id)
+	if err != nil {
+		logrus.Errorf("failed to get transactions for order id %d, error: %s", id, err.Error())
+		return order, err
+	}
+
+	return order, nil
 }

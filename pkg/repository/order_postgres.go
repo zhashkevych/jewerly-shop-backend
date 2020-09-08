@@ -55,7 +55,6 @@ func (r *OrderRepository) Create(input jewerly.CreateOrderInput) (int, error) {
 	}
 
 	createOrderItemsQuery := fmt.Sprintf("INSERT INTO %s (order_id, product_id, quantity) VALUES %s", orderItemsTable, items)
-	logrus.Debug(createOrderItemsQuery)
 
 	_, err = tx.Exec(createOrderItemsQuery, values...)
 	if err != nil {
@@ -100,9 +99,9 @@ func (r *OrderRepository) GetOrderProducts(items []jewerly.OrderItem) ([]jewerly
 		ids += fmt.Sprintf("$%d, ", i+1)
 	}
 
-	err := r.db.Select(&products, fmt.Sprintf(`SELECT p.id, p.current_price, t.english as title 
-							FROM %s p INNER JOIN %s t ON t.product_id = p.id
-							WHERE p.id IN (%s) and p.in_stock=true`, productsTable, titlesTable, ids), values...)
+	err := r.db.Select(&products, fmt.Sprintf(`SELECT p.id, pr.usd as price, t.english as title 
+							FROM %s p INNER JOIN %s t ON t.id = p.title_id INNER JOIN %s pr on pr.id = p.price_id
+							WHERE p.id IN (%s) and p.in_stock=true`, productsTable, titlesTable, pricesTable, ids), values...)
 	if err != nil {
 		return products, err
 	}

@@ -134,7 +134,7 @@ func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewer
 	args := make([]interface{}, 0)
 	if filters.CategoryId.Valid {
 		whereQuery = fmt.Sprintf("WHERE p.category_id=$%d", argId)
-		args = append(args, filters.CategoryId)
+		args = append(args, filters.CategoryId.Int64)
 		argId++
 	}
 
@@ -153,7 +153,16 @@ func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewer
 	err := r.db.Select(&products.Products, query, args...)
 
 	// total count
-	err = r.db.Get(&products.Total, fmt.Sprintf("SELECT count(*) %s", fromQuery))
+	var countQuery string
+	args = make([]interface{}, 0)
+	if whereQuery == "" {
+		countQuery = fmt.Sprintf("SELECT count(*) %s", fromQuery)
+	} else {
+		countQuery = fmt.Sprintf("SELECT count(*) %s %s", fromQuery, whereQuery)
+		args = append(args, filters.CategoryId.Int64)
+	}
+
+	err = r.db.Get(&products.Total, countQuery, args...)
 
 	return products, err
 }

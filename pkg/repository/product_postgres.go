@@ -316,7 +316,7 @@ func multiLanguageUpdateQuery(table string, input jewerly.MultiLanguageInput, pr
 		fieldName = "material_id"
 	}
 
-	query := fmt.Sprintf("UPDATE %s l SET l.english=$1, l.russian=$2, l.ukrainian=$3 JOIN %s p ON p.%s = l.id WHERE p.id = $4",
+	query := fmt.Sprintf("UPDATE %[1]s SET english=$1, russian=$2, ukrainian=$3 FROM %[2]s WHERE %[1]s.id = %[2]s.%[3]s and %[2]s.id = $4",
 		table, productsTable, fieldName)
 	args := []interface{}{input.English, input.Russian, input.Ukrainian, productId}
 
@@ -324,9 +324,12 @@ func multiLanguageUpdateQuery(table string, input jewerly.MultiLanguageInput, pr
 }
 
 func multiCurrencyUpdateQuery(input jewerly.MultiCurrencyInput, productId int) (string, []interface{}) {
-	query := fmt.Sprintf("UPDATE %s pr SET pr.usd=$1, pr.eur=$2, pr.uah=$3 JOIN %s p ON p.price_id = pr.id WHERE p.id = $4",
+	query := fmt.Sprintf("UPDATE %[1]s SET usd=$1, eur=$2, uah=$3 FROM %[2]s WHERE %[2]s.price_id = %[1]s.id AND %[2]s.id = $4",
 		pricesTable, productsTable)
 	args := []interface{}{input.USD, input.EUR, input.UAH, productId}
+
+	logrus.Debugf("query: %s", query)
+	logrus.Debugf("args: %s", args)
 
 	return query, args
 }

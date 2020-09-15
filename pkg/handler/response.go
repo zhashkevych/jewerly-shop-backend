@@ -13,6 +13,7 @@ type errorResponse struct {
 var (
 	statusCodes = map[error]int{
 		jewerly.ErrUserNotFound: http.StatusBadRequest,
+		jewerly.ErrOrderSumLow: http.StatusBadRequest,
 	}
 )
 

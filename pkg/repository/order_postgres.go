@@ -55,7 +55,6 @@ func (r *OrderRepository) Create(input jewerly.CreateOrderInput) (int, error) {
 	}
 
 	createOrderItemsQuery := fmt.Sprintf("INSERT INTO %s (order_id, product_id, quantity) VALUES %s", orderItemsTable, items)
-	logrus.Debug(createOrderItemsQuery)
 
 	_, err = tx.Exec(createOrderItemsQuery, values...)
 	if err != nil {
@@ -100,14 +99,35 @@ func (r *OrderRepository) GetOrderProducts(items []jewerly.OrderItem) ([]jewerly
 		ids += fmt.Sprintf("$%d, ", i+1)
 	}
 
-	err := r.db.Select(&products, fmt.Sprintf("SELECT * FROM %s WHERE id IN (%s)", productsTable, ids), values...)
-	return products, err
+	err := r.db.Select(&products, fmt.Sprintf(`SELECT p.id, pr.usd as price, t.english as title 
+							FROM %s p INNER JOIN %s t ON t.id = p.title_id INNER JOIN %s pr on pr.id = p.price_id
+							WHERE p.id IN (%s) and p.in_stock=true`, productsTable, titlesTable, pricesTable, ids), values...)
+	if err != nil {
+		return products, err
+	}
+
+	for i := range products {
+		err := r.db.Select(&products[i].Images,
+			fmt.Sprintf("SELECT i.id, i.url, i.alt_text FROM %s i INNER JOIN %s pi on pi.image_id = i.id WHERE pi.product_id=$1", imagesTable, productImagesTable),
+			products[i].Id)
+		if err != nil {
+			return products, err
+		}
+	}
+
+	return products, nil
 }
 
 func (r *OrderRepository) CreateTransaction(transactionId, cardMask, status string) error {
 	_, err := r.db.Exec(fmt.Sprintf("INSERT INTO %s (uuid, card_mask, status) VALUES ($1, $2, $3)", transactionsHistoryTable),
 		transactionId, cardMask, status)
 	return err
+}
+
+func (r *OrderRepository) GetOrderId(transactionId string) (int, error) {
+	var id int
+	err := r.db.Get(&id, fmt.Sprintf("SELECT order_id FROM %s WHERE uuid=$1", transactionsTable), transactionId)
+	return id, err
 }
 
 func (r *OrderRepository) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.OrderList, error) {
@@ -152,5 +172,30 @@ func (r *OrderRepository) GetAll(input jewerly.GetAllOrdersFilters) (jewerly.Ord
 }
 
 func (r *OrderRepository) GetById(id int) (jewerly.Order, error) {
-	return jewerly.Order{}, nil
+	var order jewerly.Order
+
+	selectOrdersQuery := fmt.Sprintf(`SELECT id, ordered_at, first_name, last_name, additional_name, country,
+										address, email, postal_code, total_cost FROM %s WHERE id=$1`, ordersTable)
+	err := r.db.Get(&order, selectOrdersQuery, id)
+	if err != nil {
+		logrus.Errorf("failed to get orders: %s", err.Error())
+		return order, err
+	}
+
+	selectOrderItemsQuery := fmt.Sprintf("SELECT product_id, quantity FROM %s WHERE order_id = $1", orderItemsTable)
+	err = r.db.Select(&order.Items, selectOrderItemsQuery, id)
+	if err != nil {
+		logrus.Errorf("failed to get order items for order id %d, error: %s", id, err.Error())
+		return order, err
+	}
+
+	selectTransactionsQuery := fmt.Sprintf(`SELECT th.uuid, th.created_at, th.status, th.card_mask FROM %s th 
+											INNER JOIN %s t on t.uuid = th.uuid WHERE t.order_id = $1`, transactionsHistoryTable, transactionsTable)
+	err = r.db.Select(&order.Transactions, selectTransactionsQuery, id)
+	if err != nil {
+		logrus.Errorf("failed to get transactions for order id %d, error: %s", id, err.Error())
+		return order, err
+	}
+
+	return order, nil
 }

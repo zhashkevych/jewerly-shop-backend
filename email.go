@@ -1,9 +1,8 @@
 package jewerly
 
-import "time"
-
-// todo: bind transaction statuses with custom statuses
-// todo: add products info
+import (
+	"time"
+)
 
 type OrderInfoEmailInput struct {
 	OrderId           int
@@ -14,9 +13,30 @@ type OrderInfoEmailInput struct {
 	PostalCode        string
 	Email             string
 	CardMask          string
-	TotalCost         float32
+	TotalCost         string
 	TransactionId     string
 	TransactionStatus string
 	OrderedAt         time.Time
 	OrderedAtFormated string
+	Products          []ProductInfo
+}
+
+type ProductInfo struct {
+	Id       int
+	Title    string
+	Quantity int
+	Price    float32
+	ImageURL string
+}
+
+type PaymentInfoEmailInput struct {
+	TransactionId string
+	OrderId       int
+	CardMask      string
+	CardBrand     string
+	Price         float32
+	Currency      string
+	BuyerName     string
+	BuyerEmail    string
+	Status        string
 }

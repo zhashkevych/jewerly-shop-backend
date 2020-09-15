@@ -1,14 +1,23 @@
 package jewerly
 
 import (
+	"errors"
 	"gopkg.in/guregu/null.v3"
 	"time"
 )
 
-// todo: input validation
-
 const (
-	TransactionStatusCreated = "Created"
+	TransactionStatusCreated    = "Created"
+	TransactionStatusPaid       = "Paid"
+	TransactionStatusFailed     = "Payment Failed"
+	TransactionStatusAuthorized = "Payment Authorized"
+	TransactionStatusRefunded   = "Payment Refunded"
+	TransactionStatusChargeback = "Payment Chargeback"
+	TransactionStatusReverted   = "Payment Reverted"
+)
+
+var (
+	ErrOrderSumLow = errors.New("order sum is too low")
 )
 
 type CreateOrderInput struct {
@@ -16,7 +25,7 @@ type CreateOrderInput struct {
 	FirstName      string      `json:"first_name"  binding:"required"`
 	LastName       string      `json:"last_name"  binding:"required"`
 	AdditionalName string      `json:"additional_name"`
-	Email          string      `json:"email"  binding:"required"`
+	Email          string      `json:"email"  binding:"email,required"`
 	Phone          string      `json:"phone"`
 	Country        string      `json:"country"  binding:"required"`
 	Address        string      `json:"address"  binding:"required"`
@@ -38,6 +47,9 @@ type TransactionCallbackInput struct {
 	SaleCreated        string `form:"sale_created"`
 	TransactionID      string `form:"transaction_id"`
 	SaleStatus         string `form:"sale_status"`
+	CardBrand          string `form:"payme_transaction_card_brand"`
+	Currency           string `form:"currency"`
+	Price              int    `form:"price"`
 	BuyerCardMask      string `form:"buyer_card_mask"`
 	BuyerCardExp       string `form:"buyer_card_exp"`
 	BuyerName          string `form:"buyer_name"`

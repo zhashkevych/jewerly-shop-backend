@@ -55,8 +55,8 @@ func (s *ProductService) Delete(id int) error {
 	return s.repo.Delete(id)
 }
 
-func (s *ProductService) GetById(id int, language string) (jewerly.ProductResponse, error) {
-	product, err := s.repo.GetById(id, language)
+func (s *ProductService) GetById(id int, language, currency string) (jewerly.ProductResponse, error) {
+	product, err := s.repo.GetById(id, language, currency)
 	if err != nil {
 		return product, err
 	}

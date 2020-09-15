@@ -1,5 +1,7 @@
 port: 8000
 
+minimal_order_sum: 400
+
 auth:
   hash_salt: "PIxP1o559vv5SQGiOEat"
   signing_key: "PIxP1o559vv5SQGiOEat"
@@ -22,14 +24,25 @@ payments:
   return_url: "https://www.example.com/payment/success"
 
 email:
-  support_email: "support@silverrain-jewelry.com"
-  support_name: "Silver Rain Support"
-  sender_email: "info@silverrain-jewelry.com"
-  sender_name: "Silver Rain Info"
+  support:
+    email: "support@silverrain-jewelry.com"
+    name: "Silver Rain Support"
+  sender:
+    email: "info@silverrain-jewelry.com"
+    name: "Silver Rain Info"
+#  no-reply:
+#    email: "no-reply@silverrain-jewelry.com"
+#    name: "no-reply"
   smtp:
     host: "mail.your-server.de"
     port: ":587"
   templates:
-    order_info: "./templates/order_info.html"
+    order_info_support: "./templates/order_info_support.html"
+    order_info_customer: "./templates/order_confirmation.html"
+    payment_info_support: "./templates/payment_info_support.html"
+    payment_info_customer: "./templates/payment_info_customer.html"
   subjects:
-    order_info: "Order #%d - %s"
+    order_info_support: "Order #%d - %s"
+    order_info_customer: "Order #%d Confirmation"
+    payment_info_support: "Order #%d: Status - %s"
+    payment_info_customer: "Order #%d: Status - %s"

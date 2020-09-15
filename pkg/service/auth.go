@@ -2,14 +2,17 @@ package service
 
 import (
 	"crypto/sha1"
-	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
-	"strconv"
 	"time"
 )
+
+type TokenClaims struct {
+	jwt.StandardClaims
+	UserId int64 `json:"id"`
+}
 
 const (
 	tokenTTL = time.Hour * 12
@@ -46,17 +49,19 @@ func (a *Authorization) SignIn(email, password string) (string, error) {
 		return "", err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(tokenTTL).Unix(),
-		IssuedAt:  time.Now().Unix(),
-		Subject:   strconv.FormatInt(user.Id, 10),
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+		user.Id,
 	})
 
 	return token.SignedString(a.signingKey)
 }
 
 func (a *Authorization) ParseToken(token string) (jewerly.User, error) {
-	t, err := jwt.Parse(token, func(token *jwt.Token) (i interface{}, err error) {
+	t, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(token *jwt.Token) (i interface{}, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -67,22 +72,12 @@ func (a *Authorization) ParseToken(token string) (jewerly.User, error) {
 		return jewerly.User{}, err
 	}
 
-	claims, ok := t.Claims.(jwt.MapClaims)
+	claims, ok := t.Claims.(*TokenClaims)
 	if !ok {
 		return jewerly.User{}, fmt.Errorf("error get user claims from token")
 	}
 
-	sub, ex := claims["sub"].(string)
-	if !ex {
-		return jewerly.User{}, errors.New("token is invalid")
-	}
-
-	id, err := strconv.ParseInt(sub, 10, 64)
-	if err != nil {
-		return jewerly.User{}, fmt.Errorf("error convert user id from string to int: err `%s`", err)
-	}
-
-	return jewerly.User{Id: id}, nil
+	return jewerly.User{Id: claims.UserId}, nil
 }
 
 func (a *Authorization) getPasswordHash(password string) string {

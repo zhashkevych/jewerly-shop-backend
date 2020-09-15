@@ -1,0 +1,123 @@
+<style>body {
+		font-family: sans-serif
+	}</style>
+<div>
+	<div style="max-width: 750px; margin: 0 auto; padding: 30px 0;">
+		<h1 style="text-align: center;">Order Confirmation</h1>
+		<div style="display: flex; justify-content: center; flex-direction: column">
+			<div style="display: flex; justify-content: center; align-items: center; flex-direction: column">
+				<h3 style="font-size: 20px; color: #b4b4b4">Hi {{.FirstName}}, thank you for the order!</h3>
+				<h2 style="font-size: 24px;">Order #{{.OrderId}}</h2>
+				<h4 style="color: #b4b4b4">Date of the order: {{.OrderedAtFormated}}</h4>
+			</div>
+		</div>
+		<div>
+			<h2>Order info:</h2>
+            {{range $val := .Products}}
+				<div style="display: flex; flex-direction: column;">
+					<hr style="width: 100%; margin-top: 20px;">
+					<div style="display: flex; justify-content: space-between; width: 100%;">
+						<div style="display: flex; align-items: center; width: 60%">
+							<div style="margin-top: 20px; margin-right: 20px; border: 1px solid red; width: 120px;height: 120px; background: ${`url('{{$val.ImageURL}}') center no-repeat; background-size: contain; `}"></div>
+							<h4>{{$val.Title}}</h4>
+						</div>
+						<div style="display: flex; align-items: center; width: 40%; justify-content: flex-end;">
+							<p style="margin-right: 20px; font-size: 18px;">Quantity: {{$val.Quantity}}</p>
+							<p style="font-size: 18px;">{{$val.Price}} $</p>
+						</div>
+					</div>
+				</div>
+			{{end}}
+		</div>
+		<hr style="width: 100%; margin-top: 30px;">
+		<div style="display: flex; justify-content: space-between;">
+			<h3 style="color: #9f9f9f">Total </h3>
+			<h3 style="color: #9f9f9f">{{.TotalCost}} $</h3>
+		</div>
+		<hr style="width: 100%; margin-top: 30px;">
+		<div style="display: flex; justify-content: center; align-items: center;">
+			<a href="http://silverrain-jewelry.com/" target="_blank"
+			   style="color: #9f9f9f; font-size: 18px; text-decoration: none; text-align: center;">Silver Rain</a>
+		</div>
+	</div>
+</div>
+
+
+
+{{/*<style>body {*/}}
+{{/*		font-family: sans-serif*/}}
+{{/*	}</style>*/}}
+{{/*<div>*/}}
+{{/*	<div style="max-width: 750px; margin: 0 auto; padding: 30px 0;">*/}}
+{{/*		<h1 style="text-align: center;">Order Confirmation</h1>*/}}
+{{/*		<div style="display: flex; justify-content: center; flex-direction: column">*/}}
+{{/*			<div style="display: flex; justify-content: center; align-items: center; flex-direction: column">*/}}
+{{/*				<h3 style="font-size: 20px; color: #b4b4b4">Hi USER_NAME, ty fo ze order.</h3>*/}}
+{{/*				<h2 style="font-size: 24px;">Order #1</h2>*/}}
+{{/*				<h4 style="color: #b4b4b4">Date of the order: 20/20/2020</h4>*/}}
+{{/*			</div>*/}}
+{{/*		</div>*/}}
+{{/*		<div>*/}}
+{{/*			<h2>Order info:</h2>*/}}
+{{/*			<div style="display: flex; flex-direction: column;">*/}}
+{{/*				<hr style="width: 100%; margin-top: 20px;">*/}}
+{{/*				<div style="display: flex; justify-content: space-between; width: 100%;">*/}}
+{{/*					<div style="display: flex; align-items: center; width: 60%">*/}}
+{{/*						<div style="margin-top: 20px; margin-right: 20px; border: 1px solid red; width: 120px;height: 120px; background: ${`url('ORDERED_IMAGE_URK') center no-repeat; background-size: contain; `}"></div>*/}}
+{{/*						<h4>Ordered item name</h4>*/}}
+{{/*					</div>*/}}
+{{/*					<div style="display: flex; align-items: center; width: 40%; justify-content: flex-end;">*/}}
+{{/*						<p style="margin-right: 20px; font-size: 18px;">Quantity: 22</p>*/}}
+{{/*						<p style="font-size: 18px;">214 $</p>*/}}
+{{/*					</div>*/}}
+{{/*				</div>*/}}
+{{/*			</div>*/}}
+{{/*			<hr style="width: 100%; margin-top: 30px;">*/}}
+{{/*			<div style="display: flex; justify-content: space-between;">*/}}
+{{/*				<div style="display: flex; justify-content: space-between; align-items: center;">*/}}
+{{/*					<div style="margin-top: 20px; margin-right: 20px; border: 1px solid red; width: 120px;height: 120px; background: ${`url('ORDERED_IMAGE_URK') center no-repeat; background-size: contain; `}"></div>*/}}
+{{/*					<h4>Ordered item name</h4>*/}}
+{{/*				</div>*/}}
+{{/*				<div style="display: flex; justify-content: space-between; align-items: center;">*/}}
+{{/*					<p style="margin-right: 20px; font-size: 18px;">Quantity: 22</p>*/}}
+{{/*					<p style="font-size: 18px;">214 $</p>*/}}
+{{/*				</div>*/}}
+{{/*			</div>*/}}
+{{/*		</div>*/}}
+{{/*		<hr style="width: 100%; margin-top: 30px;">*/}}
+{{/*		<div style="display: flex; justify-content: space-between;">*/}}
+{{/*			<h3 style="color: #9f9f9f">Total</h3>*/}}
+{{/*			<h3 style="color: #9f9f9f">124124 $</h3>*/}}
+{{/*		</div>*/}}
+{{/*		<div>*/}}
+{{/*			<h3 style="color: #9f9f9f">Payment info</h3>*/}}
+{{/*			<div style="display: flex; justify-content: space-between;">*/}}
+{{/*				<p>Mastercard (***********1234)</p>*/}}
+{{/*				<p>124124 $</p>*/}}
+{{/*			</div>*/}}
+{{/*		</div>*/}}
+{{/*		<div style="display: flex; justify-content: space-between;">*/}}
+{{/*			<div style="display: flex; flex-direction: column">*/}}
+{{/*				<h3 style="color: #9f9f9f">Billing info</h3>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*				<p>itemditemditmditemditemditemd</p>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*			</div>*/}}
+{{/*			<div style="display: flex; flex-direction: column">*/}}
+{{/*				<h3 style="color: #9f9f9f">Shipping Address</h3>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*				<p>itemd</p>*/}}
+{{/*			</div>*/}}
+{{/*		</div>*/}}
+{{/*		<hr style="width: 100%; margin-top: 30px;">*/}}
+{{/*		<div style="display: flex; justify-content: center; align-items: center;">*/}}
+{{/*			<a href="http://silverrain-jewelry.com/" target="_blank"*/}}
+{{/*			   style="color: #9f9f9f; font-size: 18px; text-decoration: none; text-align: center;">Silver Rain</a>*/}}
+{{/*		</div>*/}}
+{{/*	</div>*/}}
+{{/*</div>*/}}

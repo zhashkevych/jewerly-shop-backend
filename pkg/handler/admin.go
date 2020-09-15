@@ -136,8 +136,9 @@ func (h *Handler) getProduct(c *gin.Context) {
 	}
 
 	language := jewerly.GetLanguageFromQuery(c.Query("language"))
+	currency := jewerly.GetCurrencyFromQuery(c.Query("currency"))
 
-	product, err := h.services.Product.GetById(id, language)
+	product, err := h.services.Product.GetById(id, language, currency)
 	if err != nil {
 		logrus.Errorf("Failed to delete product: %s\n", err.Error())
 		newErrorResponse(c, getStatusCode(err), err)
@@ -197,5 +198,19 @@ func (h *Handler) getAllOrders(c *gin.Context) {
 }
 
 func (h *Handler) getOrder(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		logrus.Errorf("Failed to parse id from query: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
 
+	order, err := h.services.Order.GetById(id)
+	if err != nil {
+		logrus.Errorf("Failed to get order: %s\n", err.Error())
+		newErrorResponse(c, getStatusCode(err), err)
+		return
+	}
+
+	c.JSON(http.StatusOK, order)
 }

@@ -37,7 +37,7 @@ type User interface {
 type Product interface {
 	Create(jewerly.CreateProductInput) error
 	GetAll(jewerly.GetAllProductsFilters) (jewerly.ProductsList, error)
-	GetById(id int, language string) (jewerly.ProductResponse, error)
+	GetById(id int, language, currency string) (jewerly.ProductResponse, error)
 	Update(id int, inp jewerly.UpdateProductInput) error
 	Delete(id int) error
 	UploadImage(ctx context.Context, file io.Reader, size int64, contentType string) (int, error)
@@ -45,13 +45,16 @@ type Product interface {
 
 type Order interface {
 	Create(jewerly.CreateOrderInput) (string, error)
-	ProcessCallback(jewerly.TransactionCallbackInput) error
+	ProcessCallback(jewerly.TransactionCallbackInput)
 	GetAll(jewerly.GetAllOrdersFilters) (jewerly.OrderList, error)
 	GetById(id int) (jewerly.Order, error)
 }
 
 type Email interface {
-	SendOrderInfo(inp jewerly.OrderInfoEmailInput) error
+	SendOrderInfoSupport(inp jewerly.OrderInfoEmailInput) error
+	SendOrderInfoCustomer(inp jewerly.OrderInfoEmailInput) error
+	SendPaymentInfoSupport(inp jewerly.PaymentInfoEmailInput) error
+	SendPaymentInfoCustomer(inp jewerly.PaymentInfoEmailInput) error
 }
 
 // Services Interface, Constructor & Dependencies
@@ -68,8 +71,19 @@ type Dependencies struct {
 	SenderEmail  string
 	SenderName   string
 
-	OrderInfoTemplate string
-	OrderInfoSubject  string
+	OrderInfoSupportTemplate string
+	OrderInfoSupportSubject  string
+
+	OrderInfoCustomerTemplate string
+	OrderInfoCustomerSubject  string
+
+	PaymentInfoSupportTemplate string
+	PaymentInfoSupportSubject  string
+
+	PaymentInfoCustomerTemplate string
+	PaymentInfoCustomerSubject  string
+
+	MinimalOrderSum float32
 }
 
 type Services struct {
@@ -83,19 +97,29 @@ type Services struct {
 
 func NewServices(deps Dependencies) *Services {
 	emailService := NewEmailService(deps.EmailSender, EmailDeps{
-		SupportEmail:      deps.SupportEmail,
-		SupportName:       deps.SupportName,
-		SenderEmail:       deps.SenderEmail,
-		SenderName:        deps.SenderName,
-		OrderInfoTemplate: deps.OrderInfoTemplate,
-		OrderInfoSubject:  deps.OrderInfoSubject,
+		SupportEmail: deps.SupportEmail,
+		SupportName:  deps.SupportName,
+		SenderEmail:  deps.SenderEmail,
+		SenderName:   deps.SenderName,
+
+		OrderInfoSupportTemplate: deps.OrderInfoSupportTemplate,
+		OrderInfoSupportSubject:  deps.OrderInfoSupportSubject,
+
+		OrderInfoCustomerTemplate: deps.OrderInfoCustomerTemplate,
+		OrderInfoCustomerSubject:  deps.OrderInfoCustomerSubject,
+
+		PaymentInfoSupportTemplate: deps.PaymentInfoSupportTemplate,
+		PaymentInfoSupportSubject:  deps.PaymentInfoSupportSubject,
+
+		PaymentInfoCustomerTemplate: deps.PaymentInfoCustomerTemplate,
+		PaymentInfoCustomerSubject:  deps.PaymentInfoCustomerSubject,
 	})
 
 	return &Services{
 		Auth:    NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
 		Admin:   NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
 		Product: NewProductService(deps.Repos.Product, deps.FileStorage),
-		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider, emailService),
+		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider, emailService, deps.MinimalOrderSum),
 		Email:   emailService,
 	}
 }

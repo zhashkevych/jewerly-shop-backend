@@ -24,22 +24,11 @@ func (r *ProductRepository) Create(product jewerly.CreateProductInput) error {
 		return err
 	}
 
-	// insert product
-	var productId int
-	row := tx.QueryRow(fmt.Sprintf(`INSERT INTO %s 
-								(current_price, previous_price, code, category_id)
-								VALUES ($1, $2, $3, $4) RETURNING id`, productsTable),
-		product.CurrentPrice, product.PreviousPrice, product.Code, product.CategoryId)
-	err = row.Scan(&productId)
-	if err != nil {
-		logrus.Errorf("[Create Product] create product error: %s", err.Error())
-		tx.Rollback()
-		return err
-	}
-
 	// insert titles
-	query, args := multiLanguageInsertQuery(titlesTable, product.Titles, productId)
-	_, err = tx.Exec(query, args...)
+	var titleId int
+	query, args := multiLanguageInsertQuery(titlesTable, product.Titles)
+	row := tx.QueryRow(query, args...)
+	row.Scan(&titleId)
 	if err != nil {
 		logrus.Errorf("[Create Product] create title error: %s", err.Error())
 		tx.Rollback()
@@ -47,8 +36,10 @@ func (r *ProductRepository) Create(product jewerly.CreateProductInput) error {
 	}
 
 	// insert descriptions
-	query, args = multiLanguageInsertQuery(descriptionsTable, product.Descriptions, productId)
-	_, err = tx.Exec(query, args...)
+	var descriptionId int
+	query, args = multiLanguageInsertQuery(descriptionsTable, product.Descriptions)
+	row = tx.QueryRow(query, args...)
+	err = row.Scan(&descriptionId)
 	if err != nil {
 		logrus.Errorf("[Create Product] create description error: %s", err.Error())
 		tx.Rollback()
@@ -56,10 +47,36 @@ func (r *ProductRepository) Create(product jewerly.CreateProductInput) error {
 	}
 
 	// insert meterial
-	query, args = multiLanguageInsertQuery(materialsTable, product.Material, productId)
-	_, err = tx.Exec(query, args...)
+	var materialId int
+	query, args = multiLanguageInsertQuery(materialsTable, product.Material)
+	row = tx.QueryRow(query, args...)
+	row.Scan(&materialId)
 	if err != nil {
 		logrus.Errorf("[Create Product] create materials error: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	// insert prices
+	var currentPriceId int
+	query, args = multiCurrencyInsertQuery(product.Price)
+	row = tx.QueryRow(query, args...)
+	row.Scan(&currentPriceId)
+	if err != nil {
+		logrus.Errorf("[Create Product] create materials error: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	//insert product
+	var productId int
+	row = tx.QueryRow(fmt.Sprintf(`INSERT INTO %s
+								(code, category_id, title_id, description_id, material_id, price_id)
+								VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`, productsTable),
+		product.Code, product.CategoryId, titleId, descriptionId, materialId, currentPriceId)
+	err = row.Scan(&productId)
+	if err != nil {
+		logrus.Errorf("[Create Product] create product error: %s", err.Error())
 		tx.Rollback()
 		return err
 	}
@@ -84,9 +101,16 @@ func (r *ProductRepository) Create(product jewerly.CreateProductInput) error {
 	return tx.Commit()
 }
 
-func multiLanguageInsertQuery(table string, input jewerly.MultiLanguageInput, productId int) (string, []interface{}) {
-	query := fmt.Sprintf("INSERT INTO %s (english, russian, ukrainian, product_id) values ($1, $2, $3, $4)", table)
-	args := []interface{}{input.English, input.Russian, input.Ukrainian, productId}
+func multiLanguageInsertQuery(table string, input jewerly.MultiLanguageInput) (string, []interface{}) {
+	query := fmt.Sprintf("INSERT INTO %s (english, russian, ukrainian) values ($1, $2, $3) RETURNING id", table)
+	args := []interface{}{input.English, input.Russian, input.Ukrainian}
+
+	return query, args
+}
+
+func multiCurrencyInsertQuery(input jewerly.MultiCurrencyInput) (string, []interface{}) {
+	query := fmt.Sprintf("INSERT INTO %s (usd, eur, uah) values ($1, $2, $3) RETURNING id", pricesTable)
+	args := []interface{}{input.USD, input.EUR, input.UAH}
 
 	return query, args
 }
@@ -94,12 +118,14 @@ func multiLanguageInsertQuery(table string, input jewerly.MultiLanguageInput, pr
 func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewerly.ProductsList, error) {
 	var products jewerly.ProductsList
 
-	selectQuery := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, p.current_price,
-							p.previous_price, p.code, p.category_id, p.in_stock`, filters.Language)
+	selectQuery := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, pr.%[2]s as price,
+							p.code, p.category_id, p.in_stock`, filters.Language, filters.Currency)
 	fromQuery := fmt.Sprintf(` FROM %[1]s p
-							JOIN %[2]s t on t.product_id = p.id
-							JOIN %[3]s d on d.product_id = p.id
-							JOIN %[4]s m on m.product_id = p.id`, productsTable, titlesTable, descriptionsTable, materialsTable)
+							JOIN %[2]s t on t.id = p.title_id
+							JOIN %[3]s d on d.id = p.description_id
+							JOIN %[4]s m on m.id = p.material_id
+							JOIN %[5]s pr on pr.id = p.price_id`,
+		productsTable, titlesTable, descriptionsTable, materialsTable, pricesTable)
 
 	// build where query
 	var whereQuery string
@@ -108,7 +134,7 @@ func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewer
 	args := make([]interface{}, 0)
 	if filters.CategoryId.Valid {
 		whereQuery = fmt.Sprintf("WHERE p.category_id=$%d", argId)
-		args = append(args, filters.CategoryId)
+		args = append(args, filters.CategoryId.Int64)
 		argId++
 	}
 
@@ -127,7 +153,16 @@ func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewer
 	err := r.db.Select(&products.Products, query, args...)
 
 	// total count
-	err = r.db.Get(&products.Total, fmt.Sprintf("SELECT count(*) %s", fromQuery))
+	var countQuery string
+	args = make([]interface{}, 0)
+	if whereQuery == "" {
+		countQuery = fmt.Sprintf("SELECT count(*) %s", fromQuery)
+	} else {
+		countQuery = fmt.Sprintf("SELECT count(*) %s %s", fromQuery, whereQuery)
+		args = append(args, filters.CategoryId.Int64)
+	}
+
+	err = r.db.Get(&products.Total, countQuery, args...)
 
 	return products, err
 }
@@ -155,14 +190,16 @@ func (r *ProductRepository) Delete(id int) error {
 	return tx.Commit()
 }
 
-func (r *ProductRepository) GetById(id int, language string) (jewerly.ProductResponse, error) {
+func (r *ProductRepository) GetById(id int, language, currency string) (jewerly.ProductResponse, error) {
 	var product jewerly.ProductResponse
 
-	query := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, p.current_price,
-							p.previous_price, p.code, p.category_id, p.in_stock FROM %[2]s p
-							JOIN %[3]s t on t.product_id = p.id
-							JOIN %[4]s d on d.product_id = p.id
-							JOIN %[5]s m on m.product_id = p.id WHERE p.id = $1`, language, productsTable, titlesTable, descriptionsTable, materialsTable)
+	query := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, 
+							pr.%[2]s as price, p.code, p.category_id, p.in_stock FROM %[3]s p
+							JOIN %[4]s t on t.id = p.title_id
+							JOIN %[5]s d on d.id = p.description_id
+							JOIN %[6]s m on m.id = p.material_id
+							JOIN %[7]s pr on pr.id = p.price_id WHERE p.id = $1`,
+		language, currency, productsTable, titlesTable, descriptionsTable, materialsTable, pricesTable)
 	err := r.db.Get(&product, query, id)
 
 	return product, err
@@ -221,22 +258,20 @@ func (r *ProductRepository) Update(id int, inp jewerly.UpdateProductInput) error
 		}
 	}
 
+	if inp.Price != nil {
+		query, args := multiCurrencyUpdateQuery(*inp.Price, id)
+
+		if _, err := r.db.Exec(query, args...); err != nil {
+			logrus.Errorf("[Update Product] update price error: %s", err.Error())
+			tx.Rollback()
+			return err
+		}
+	}
+
 	// update product query
 	argId := 1
 	args := make([]interface{}, 0)
 	updateValues := make([]string, 0)
-
-	if inp.CurrentPrice.Valid {
-		updateValues = append(updateValues, fmt.Sprintf("current_price=$%d", argId))
-		args = append(args, inp.CurrentPrice.Float64)
-		argId++
-	}
-
-	if inp.PreviousPrice.Valid {
-		updateValues = append(updateValues, fmt.Sprintf("previous_price=$%d", argId))
-		args = append(args, inp.PreviousPrice.Float64)
-		argId++
-	}
 
 	if inp.Code.Valid {
 		updateValues = append(updateValues, fmt.Sprintf("code=$%d", argId))
@@ -271,8 +306,30 @@ func (r *ProductRepository) Update(id int, inp jewerly.UpdateProductInput) error
 }
 
 func multiLanguageUpdateQuery(table string, input jewerly.MultiLanguageInput, productId int) (string, []interface{}) {
-	query := fmt.Sprintf("UPDATE %s SET english=$1, russian=$2, ukrainian=$3 WHERE product_id = $4", table)
+	var fieldName string
+	switch table {
+	case titlesTable:
+		fieldName = "title_id"
+	case descriptionsTable:
+		fieldName = "description_id"
+	case materialsTable:
+		fieldName = "material_id"
+	}
+
+	query := fmt.Sprintf("UPDATE %[1]s SET english=$1, russian=$2, ukrainian=$3 FROM %[2]s WHERE %[1]s.id = %[2]s.%[3]s and %[2]s.id = $4",
+		table, productsTable, fieldName)
 	args := []interface{}{input.English, input.Russian, input.Ukrainian, productId}
+
+	return query, args
+}
+
+func multiCurrencyUpdateQuery(input jewerly.MultiCurrencyInput, productId int) (string, []interface{}) {
+	query := fmt.Sprintf("UPDATE %[1]s SET usd=$1, eur=$2, uah=$3 FROM %[2]s WHERE %[2]s.price_id = %[1]s.id AND %[2]s.id = $4",
+		pricesTable, productsTable)
+	args := []interface{}{input.USD, input.EUR, input.UAH, productId}
+
+	logrus.Debugf("query: %s", query)
+	logrus.Debugf("args: %s", args)
 
 	return query, args
 }

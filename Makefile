@@ -15,3 +15,9 @@ migrate-down:
 
 migrate-drop:
 	migrate -path ./schema -database postgres://postgres:@0.0.0.0:55432/postgres?sslmode=disable drop
+
+logs-stage:
+	tail -f /root/jewerly-shop/api/logs/stage/api.log
+
+logs-prod:
+	tail -f /root/jewerly-shop/api/logs/prod/api.log

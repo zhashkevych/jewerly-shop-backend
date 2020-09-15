@@ -14,6 +14,7 @@ import (
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/service"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/storage"
+	"io"
 	"os"
 	"os/signal"
 	"syscall"
@@ -22,6 +23,15 @@ import (
 
 func init() {
 	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	file, err := os.OpenFile("/logs/api.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	mw := io.MultiWriter(os.Stdout, file)
+	logrus.SetOutput(mw)
 
 	if err := config.Init(); err != nil {
 		logrus.Fatalf("error loading config: %s\n", err.Error())
@@ -64,27 +74,40 @@ func main() {
 	emailSender := email.NewSMTPClient(
 		viper.GetString("email.smtp.host"),
 		viper.GetString("email.smtp.port"),
-		viper.GetString("email.sender_email"),
+		viper.GetString("email.sender.email"),
 		emailPassword)
 
 	// Init Dependecies
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Dependencies{
-		Repos:             repos,
-		HashSalt:          viper.GetString("auth.hash_salt"),
-		SigningKey:        []byte(viper.GetString("auth.signing_key")),
-		FileStorage:       minioStorage,
-		PaymentProvider:   paymentProvider,
-		SupportEmail:      viper.GetString("email.support_email"),
-		SupportName:       viper.GetString("email.support_name"),
-		SenderName:        viper.GetString("email.sender_name"),
-		SenderEmail:       viper.GetString("email.sender_email"),
-		OrderInfoTemplate: viper.GetString("email.templates.order_info"),
-		OrderInfoSubject:  viper.GetString("email.subjects.order_info"),
-		EmailSender:       emailSender,
+		Repos:           repos,
+		HashSalt:        viper.GetString("auth.hash_salt"),
+		SigningKey:      []byte(viper.GetString("auth.signing_key")),
+		FileStorage:     minioStorage,
+		PaymentProvider: paymentProvider,
+		SupportEmail:    viper.GetString("email.support.email"),
+		SupportName:     viper.GetString("email.support.name"),
+		SenderName:      viper.GetString("email.sender.name"),
+		SenderEmail:     viper.GetString("email.sender.email"),
+
+		OrderInfoSupportTemplate: viper.GetString("email.templates.order_info_support"),
+		OrderInfoSupportSubject:  viper.GetString("email.subjects.order_info_support"),
+
+		OrderInfoCustomerTemplate: viper.GetString("email.templates.order_info_customer"),
+		OrderInfoCustomerSubject:  viper.GetString("email.subjects.order_info_customer"),
+
+		PaymentInfoSupportTemplate: viper.GetString("email.templates.payment_info_support"),
+		PaymentInfoSupportSubject:  viper.GetString("email.subjects.payment_info_support"),
+
+		PaymentInfoCustomerTemplate: viper.GetString("email.templates.payment_info_customer"),
+		PaymentInfoCustomerSubject:  viper.GetString("email.subjects.payment_info_customer"),
+
+		EmailSender: emailSender,
+
+		MinimalOrderSum: float32(viper.GetFloat64("minimal_order_sum")),
 	})
 	handlers := handler.NewHandler(services)
-	
+
 	// Create & Run HTTP Server
 	server := jewerly.NewServer()
 	go func() {
@@ -92,6 +115,8 @@ func main() {
 			logrus.Errorf("Error occurred while running server: %s\n", err.Error())
 		}
 	}()
+
+	logrus.Info("Application Started")
 
 	// graceful shutdown
 	quit := make(chan os.Signal, 1)

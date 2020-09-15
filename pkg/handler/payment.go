@@ -18,11 +18,6 @@ func (h *Handler) callback(c *gin.Context) {
 
 	logrus.Debugf("input: %+v", inp)
 
-	if err := h.services.Order.ProcessCallback(inp); err != nil {
-		logrus.Errorf("failed to process payment callback: %s\n", err.Error())
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-
+	h.services.Order.ProcessCallback(inp)
 	c.Status(http.StatusOK)
 }

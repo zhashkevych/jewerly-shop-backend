@@ -1,49 +1,3 @@
-<style>body {
-		font-family: sans-serif
-	}</style>
-<div>
-	<div style="max-width: 750px; margin: 0 auto; padding: 30px 0;">
-		<h1 style="text-align: center;">Order Confirmation</h1>
-		<div style="display: flex; justify-content: center; flex-direction: column">
-			<div style="display: flex; justify-content: center; align-items: center; flex-direction: column">
-				<h3 style="font-size: 20px; color: #b4b4b4">Hi {{.FirstName}}, thank you for the order!</h3>
-				<h2 style="font-size: 24px;">Order #{{.OrderId}}</h2>
-				<h4 style="color: #b4b4b4">Date of the order: {{.OrderedAtFormated}}</h4>
-			</div>
-		</div>
-		<div>
-			<h2>Order info:</h2>
-            {{range $val := .Products}}
-				<div style="display: flex; flex-direction: column;">
-					<hr style="width: 100%; margin-top: 20px;">
-					<div style="display: flex; justify-content: space-between; width: 100%;">
-						<div style="display: flex; align-items: center; width: 60%">
-							<div style="margin-top: 20px; margin-right: 20px; border: 1px solid red; width: 120px;height: 120px; background: ${`url('{{$val.ImageURL}}') center no-repeat; background-size: contain; `}"></div>
-							<h4>{{$val.Title}}</h4>
-						</div>
-						<div style="display: flex; align-items: center; width: 40%; justify-content: flex-end;">
-							<p style="margin-right: 20px; font-size: 18px;">Quantity: {{$val.Quantity}}</p>
-							<p style="font-size: 18px;">{{$val.Price}} $</p>
-						</div>
-					</div>
-				</div>
-			{{end}}
-		</div>
-		<hr style="width: 100%; margin-top: 30px;">
-		<div style="display: flex; justify-content: space-between;">
-			<h3 style="color: #9f9f9f">Total </h3>
-			<h3 style="color: #9f9f9f">{{.TotalCost}} $</h3>
-		</div>
-		<hr style="width: 100%; margin-top: 30px;">
-		<div style="display: flex; justify-content: center; align-items: center;">
-			<a href="http://silverrain-jewelry.com/" target="_blank"
-			   style="color: #9f9f9f; font-size: 18px; text-decoration: none; text-align: center;">Silver Rain</a>
-		</div>
-	</div>
-</div>
-
-
-
 {{/*<style>body {*/}}
 {{/*		font-family: sans-serif*/}}
 {{/*	}</style>*/}}
@@ -52,67 +6,33 @@
 {{/*		<h1 style="text-align: center;">Order Confirmation</h1>*/}}
 {{/*		<div style="display: flex; justify-content: center; flex-direction: column">*/}}
 {{/*			<div style="display: flex; justify-content: center; align-items: center; flex-direction: column">*/}}
-{{/*				<h3 style="font-size: 20px; color: #b4b4b4">Hi USER_NAME, ty fo ze order.</h3>*/}}
-{{/*				<h2 style="font-size: 24px;">Order #1</h2>*/}}
-{{/*				<h4 style="color: #b4b4b4">Date of the order: 20/20/2020</h4>*/}}
+{{/*				<h3 style="font-size: 20px; color: #b4b4b4">Hi {{.FirstName}}, thank you for the order!</h3>*/}}
+{{/*				<h2 style="font-size: 24px;">Order #{{.OrderId}}</h2>*/}}
+{{/*				<h4 style="color: #b4b4b4">Date of the order: {{.OrderedAtFormated}}</h4>*/}}
 {{/*			</div>*/}}
 {{/*		</div>*/}}
 {{/*		<div>*/}}
 {{/*			<h2>Order info:</h2>*/}}
-{{/*			<div style="display: flex; flex-direction: column;">*/}}
-{{/*				<hr style="width: 100%; margin-top: 20px;">*/}}
-{{/*				<div style="display: flex; justify-content: space-between; width: 100%;">*/}}
-{{/*					<div style="display: flex; align-items: center; width: 60%">*/}}
-{{/*						<div style="margin-top: 20px; margin-right: 20px; border: 1px solid red; width: 120px;height: 120px; background: ${`url('ORDERED_IMAGE_URK') center no-repeat; background-size: contain; `}"></div>*/}}
-{{/*						<h4>Ordered item name</h4>*/}}
+{{/*            {{range $val := .Products}}*/}}
+{{/*				<div style="display: flex; flex-direction: column;">*/}}
+{{/*					<hr style="width: 100%; margin-top: 20px;">*/}}
+{{/*					<div style="display: flex; justify-content: space-between; width: 100%;">*/}}
+{{/*						<div style="display: flex; align-items: center; width: 60%">*/}}
+{{/*							<div style="margin-top: 20px; margin-right: 20px; border: 1px solid red; width: 120px;height: 120px; background: ${`url('{{$val.ImageURL}}') center no-repeat; background-size: contain; `}"></div>*/}}
+{{/*							<h4>{{$val.Title}}</h4>*/}}
+{{/*						</div>*/}}
+{{/*						<div style="display: flex; align-items: center; width: 40%; justify-content: flex-end;">*/}}
+{{/*							<p style="margin-right: 20px; font-size: 18px;">Quantity: {{$val.Quantity}}</p>*/}}
+{{/*							<p style="font-size: 18px;">{{$val.Price}} $</p>*/}}
+{{/*						</div>*/}}
 {{/*					</div>*/}}
-{{/*					<div style="display: flex; align-items: center; width: 40%; justify-content: flex-end;">*/}}
-{{/*						<p style="margin-right: 20px; font-size: 18px;">Quantity: 22</p>*/}}
-{{/*						<p style="font-size: 18px;">214 $</p>*/}}
-{{/*					</div>*/}}
 {{/*				</div>*/}}
-{{/*			</div>*/}}
-{{/*			<hr style="width: 100%; margin-top: 30px;">*/}}
-{{/*			<div style="display: flex; justify-content: space-between;">*/}}
-{{/*				<div style="display: flex; justify-content: space-between; align-items: center;">*/}}
-{{/*					<div style="margin-top: 20px; margin-right: 20px; border: 1px solid red; width: 120px;height: 120px; background: ${`url('ORDERED_IMAGE_URK') center no-repeat; background-size: contain; `}"></div>*/}}
-{{/*					<h4>Ordered item name</h4>*/}}
-{{/*				</div>*/}}
-{{/*				<div style="display: flex; justify-content: space-between; align-items: center;">*/}}
-{{/*					<p style="margin-right: 20px; font-size: 18px;">Quantity: 22</p>*/}}
-{{/*					<p style="font-size: 18px;">214 $</p>*/}}
-{{/*				</div>*/}}
-{{/*			</div>*/}}
+{{/*			{{end}}*/}}
 {{/*		</div>*/}}
 {{/*		<hr style="width: 100%; margin-top: 30px;">*/}}
 {{/*		<div style="display: flex; justify-content: space-between;">*/}}
-{{/*			<h3 style="color: #9f9f9f">Total</h3>*/}}
-{{/*			<h3 style="color: #9f9f9f">124124 $</h3>*/}}
-{{/*		</div>*/}}
-{{/*		<div>*/}}
-{{/*			<h3 style="color: #9f9f9f">Payment info</h3>*/}}
-{{/*			<div style="display: flex; justify-content: space-between;">*/}}
-{{/*				<p>Mastercard (***********1234)</p>*/}}
-{{/*				<p>124124 $</p>*/}}
-{{/*			</div>*/}}
-{{/*		</div>*/}}
-{{/*		<div style="display: flex; justify-content: space-between;">*/}}
-{{/*			<div style="display: flex; flex-direction: column">*/}}
-{{/*				<h3 style="color: #9f9f9f">Billing info</h3>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*				<p>itemditemditmditemditemditemd</p>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*			</div>*/}}
-{{/*			<div style="display: flex; flex-direction: column">*/}}
-{{/*				<h3 style="color: #9f9f9f">Shipping Address</h3>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*				<p>itemd</p>*/}}
-{{/*			</div>*/}}
+{{/*			<h3 style="color: #9f9f9f">Total </h3>*/}}
+{{/*			<h3 style="color: #9f9f9f">{{.TotalCost}} $</h3>*/}}
 {{/*		</div>*/}}
 {{/*		<hr style="width: 100%; margin-top: 30px;">*/}}
 {{/*		<div style="display: flex; justify-content: center; align-items: center;">*/}}
@@ -121,3 +41,296 @@
 {{/*		</div>*/}}
 {{/*	</div>*/}}
 {{/*</div>*/}}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Template</title>
+    <link
+            href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;1,400;1,800&display=swap"
+            rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        body {
+            width: 100% !important;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            margin: 0;
+            padding: 0;
+            line-height: 100%;
+        }
+
+        [style*="Open Sans"] {
+            font-family: "Open Sans", arial, sans-serif !important;
+        }
+
+        img {
+            outline: none;
+            text-decoration: none;
+            border: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        table td {
+            border-collapse: collapse;
+        }
+
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+    </style>
+</head>
+
+<body style="margin: 0; padding: 0">
+<table
+        height="100"
+        cellpadding="0"
+        cellspacing="0"
+        width="100%"
+        bgcolor="#ffcb9e"
+>
+    <tr style="width: 800px; width: 800px" align="center">
+        <td style="font-size: 30px">
+            <!-- Table Header -->
+            <table style="color: black; width: 800px" bgcolor="white">
+                <tr style="height: 50px"></tr>
+                <tr
+                        style="
+                height: 50px;
+                color: black;
+                font-family: Arial, Helvetica, sans-serif, Open Sans;
+                font-weight: 800 italic;
+                font-size: 30px;
+                margin-top: 30px;
+              "
+                        bgcolor="white"
+                        align="center"
+                >
+                    <td>Order Confirmation</td>
+                </tr>
+                <tr style="height: 30px"></tr>
+                <tr
+                        style="
+                height: 50px;
+                color: #b4b4b4;
+                font-family: Arial, Helvetica, sans-serif, Open Sans;
+                font-size: 24px;
+              "
+                        bgcolor="white"
+                        align="center"
+                >
+                    <td>Hey {{.FirstName}}, thank you for the order!</td>
+                </tr>
+                <tr
+                        style="
+                height: 30px;
+                color: #b4b4b4;
+                font-size: 20px;
+                font-family: Arial, Helvetica, sans-serif, Open Sans;
+              "
+                        bgcolor="white"
+                        align="center"
+                >
+                    <td>Have a nace day!</td>
+                </tr>
+
+                <tr style="height: 20px"></tr>
+                <tr
+                        style="height: 50px; color: black; font-size: 24px"
+                        bgcolor="white"
+                        align="center"
+                        class=""
+                >
+                    <td>ORDER #{{.OrderId}}<span></span></td>
+                </tr>
+                <tr
+                        style="height: 50px; color: rgb(129, 129, 129); font-size: 20px"
+                        bgcolor="white"
+                        align="center"
+                        class=""
+                >
+                    <td>Date of the order : {{.OrderedAtFormated}}</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr style="width: 800px; width: 800px" align="center">
+        <td>
+            <!-- MAINE TALET -->
+            <table style="color: black; width: 800px" bgcolor="white">
+                <tr
+                        style="
+                height: 50px;
+                color: #b4b4b4;
+                font-family: Arial, Helvetica, sans-serif, Open Sans;
+                margin-top: 20px;
+                font-size: 20px;
+              "
+                        bgcolor="white"
+                        align="left"
+                >
+                    <td style="width: 40px"></td>
+                    <td style="border-bottom: 3px solid #b4b4b4">ITEMS ORDERED</td>
+                    <td style="width: 40px"></td>
+                </tr>
+                <tr style="height: 20px"></tr>
+                <tr
+                        style="
+                height: 50px;
+                color: #b4b4b4;
+                font-family: Arial, Helvetica, sans-serif, Open Sans;
+                margin-top: 20px;
+                font-size: 20px;
+              "
+                        bgcolor="white"
+                >
+                    <td style="width: 20px"></td>
+                    <!--   ITEMS CARDS START   -->
+                    <td style="">
+                        <table style="margin: 0 auto">
+                            <!--   ITEMS CARDS 1  -->
+                            {{range $val := .Products}}
+                                <tr
+                                        style="
+                      width: 100%;
+                      height: 50px;
+                      color: #b4b4b4;
+                      font-family: Arial, Helvetica, sans-serif, Open Sans;
+                      margin-top: 20px;
+                      font-size: 20px;
+                    "
+                                        bgcolor="white"
+                                >
+                                    <td>
+                                        <img
+                                                style="width: 200px; height: 200px"
+                                                src="{{$val.ImageURL}}"
+                                                alt="img"
+                                        />
+                                    </td>
+                                    <td>
+                                        <div
+                                                style="
+                          margin-bottom: 30px;
+                          color: black;
+                          font-size: 30px;
+                        "
+                                        >
+                                            {{$val.Title}}
+                                        </div>
+                                    </td>
+                                    <td style="width: 25%"></td>
+                                    <td align="left">x <span>{{$val.Quantity}}</span></td>
+                                    <td style="width: 20px"></td>
+                                    <td>${{$val.Price}}</td>
+                                </tr>
+                            {{end}}
+                        </table>
+                    </td>
+
+                    <td style="width: 20px"></td>
+                </tr>
+                <tr style="height: 20px"></tr>
+                <!--              TOTAL               -->
+                <tr
+                        style="
+                height: 50px;
+                color: #000000;
+                font-family: Arial, Helvetica, sans-serif, Open Sans;
+                font-size: 25px;
+              "
+                        bgcolor="white"
+                        align="center"
+                >
+                    <td></td>
+                    <td>Total : <span>$ {{.TotalCost}}</span></td>
+                    <td></td>
+                </tr>
+                <tr style="height: 40px" bgcolor="white">
+                    <td style="width: 40px"></td>
+                    <td style="border-bottom: 3px solid #b4b4b4"></td>
+                    <td style="width: 40px"></td>
+                </tr>
+                <tr style="height: 20px"></tr>
+
+                <tr
+                        style="
+                height: 50px;
+                color: #b4b4b4;
+                font-family: Arial, Helvetica, sans-serif, Open Sans;
+                margin-top: 20px;
+                font-size: 20px;
+              "
+                        bgcolor="white"
+                        align="center"
+                >
+                    <td style="width: 40px"></td>
+                    <td style="font-size: 25px">Shipping Address</td>
+                    <td style="width: 40px"></td>
+                </tr>
+                <tr style="height: 20px"></tr>
+
+                <tr aling="center">
+                    <td style="width: 20px"></td>
+                    <td>
+                        <table
+                                style="color: black; margin: 0 auto; width: 500px"
+                                bgcolor="white"
+                        >
+                            <tbody style="width: 100%; height: 50px; color: rgb(129, 129, 129); font-size: 20px"
+                                   bgcolor="white"
+                                   align="left">
+                            <tr>
+                                <td>Name:</td>
+                                <td>{{.LastName}} {{.FirstName}}</td>
+                            </tr>
+                            <tr>
+                                <td>Email:</td>
+                                <td>{{.Email}}</td>
+                            </tr>
+                            <tr>
+                                <td>Country</td>
+                                <td>{{.Country}}</td>
+                            </tr>
+                            <tr>
+                                <td>Address</td>
+                                <td>{{.Address}}</td>
+                            </tr>
+                            <tr>
+                                <td>Postal Code</td>
+                                <td>{{.PostalCode}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                    <td style="width: 20px"></td>
+                </tr>
+
+                <tr style="height: 40px" bgcolor="white">
+                    <td style="width: 40px"></td>
+                    <td style="border-bottom: 3px solid #b4b4b4"></td>
+                    <td style="width: 40px"></td>
+                </tr>
+
+                <tr style="height: 20px"></tr>
+
+                <tr align="center">
+                    <td style="width: 40px"></td>
+                    <td style="font-size: 25px; color: #b4b4b4"><a href="http://silverrain-jewelry.com/">Silver Rain</a>
+                    </td>
+                    <td style="width: 40px"></td>
+                </tr>
+
+                <tr style="height: 60px"></tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

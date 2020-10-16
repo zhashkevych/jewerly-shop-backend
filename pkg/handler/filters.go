@@ -15,7 +15,6 @@ const (
 func getProductFilters(c *gin.Context) jewerly.GetAllProductsFilters {
 	filters := jewerly.GetAllProductsFilters{
 		Language: jewerly.GetLanguageFromQuery(c.Query("language")),
-		Currency: jewerly.GetCurrencyFromQuery(c.Query("currency")),
 	}
 
 	limit, err := strconv.Atoi(c.Query("limit"))

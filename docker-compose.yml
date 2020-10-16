@@ -20,4 +20,4 @@ services:
     volumes:
       - ./.build/volumes/databases/postgres/data:/var/lib/postgresql/data
     ports:
-      - 55432:5432
+      - 5432:5432

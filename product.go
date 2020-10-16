@@ -10,7 +10,7 @@ type CreateProductInput struct {
 	Titles       MultiLanguageInput `json:"titles" binding:"required"`
 	Descriptions MultiLanguageInput `json:"descriptions" binding:"required"`
 	Material     MultiLanguageInput `json:"materials" binding:"required"`
-	Price        MultiCurrencyInput `json:"price" binding:"required"`
+	Price        float32            `json:"price" binding:"required"`
 	Code         string             `json:"code" binding:"required"`
 	ImageIds     []int              `json:"image_ids" binding:"required"`
 	CategoryId   Category           `json:"category_id" binding:"required"`
@@ -24,26 +24,24 @@ type UpdateProductInput struct {
 	Titles       *MultiLanguageInput `json:"titles"`
 	Descriptions *MultiLanguageInput `json:"descriptions"`
 	Material     *MultiLanguageInput `json:"materials"`
-	Price        *MultiCurrencyInput `json:"price"`
+	Price        null.Float          `json:"price"`
 	Code         null.String         `json:"code"`
 	CategoryId   *Category           `json:"category_id"`
 	InStock      null.Bool           `json:"in_stock"`
 }
 
 func (i UpdateProductInput) Validate() error {
-	return i.CategoryId.Validate()
+	if i.CategoryId != nil {
+		return i.CategoryId.Validate()
+	}
+
+	return nil
 }
 
 type MultiLanguageInput struct {
 	English   string `json:"english" binding:"required"`
 	Russian   string `json:"russian" binding:"required"`
 	Ukrainian string `json:"ukrainian" binding:"required"`
-}
-
-type MultiCurrencyInput struct {
-	USD float32 `json:"usd" binding:"required"`
-	EUR float32 `json:"eur" binding:"required"`
-	UAH float32 `json:"uah" binding:"required"`
 }
 
 type GetAllProductsFilters struct {
@@ -102,10 +100,6 @@ const (
 	English    = "english"
 	Ukraininan = "ukrainian"
 	Russian    = "russian"
-
-	USD = "usd"
-	EUR = "eur"
-	UAH = "uah"
 )
 
 var (
@@ -134,15 +128,4 @@ func GetLanguageFromQuery(query string) string {
 	}
 
 	return English
-}
-
-func GetCurrencyFromQuery(query string) string {
-	switch query {
-	case EUR:
-		return EUR
-	case UAH:
-		return UAH
-	default:
-		return USD
-	}
 }

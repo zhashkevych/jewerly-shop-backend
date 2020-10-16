@@ -18,7 +18,6 @@ const (
 	transactionsTable        = "transactions"
 	transactionsHistoryTable = "transactions_history"
 	adminUsersTable          = "admin_users"
-	pricesTable              = "prices"
 )
 
 type Config struct {

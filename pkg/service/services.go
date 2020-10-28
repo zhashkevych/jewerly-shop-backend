@@ -10,6 +10,8 @@ import (
 	"io"
 )
 
+//go:generate mockgen -source=services.go -destination=mocks/mock.go
+
 // Authorization
 type SignUpInput struct {
 	FirstName string
@@ -27,11 +29,6 @@ type Auth interface {
 type Admin interface {
 	SignIn(login, password string) (string, error)
 	ParseToken(token string) error
-}
-
-// Users
-type User interface {
-	GetById(id int64) (jewerly.User, error)
 }
 
 type Product interface {
@@ -89,7 +86,6 @@ type Dependencies struct {
 type Services struct {
 	Auth
 	Admin
-	User
 	Product
 	Order
 	Email

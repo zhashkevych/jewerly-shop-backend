@@ -5,11 +5,8 @@ import (
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 )
 
-type User interface {
-	Create(user jewerly.User) error
-	GetByCredentials(email, passwordHash string) (jewerly.User, error)
-	GetById(id int64) (jewerly.User, error)
-}
+// todo refactor package structure
+// todo remove user from DB schema
 
 type Admin interface {
 	Authorize(login, passwordHash string) error
@@ -35,7 +32,6 @@ type Order interface {
 }
 
 type Repository struct {
-	User
 	Admin
 	Product
 	Order
@@ -43,7 +39,6 @@ type Repository struct {
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		User:    NewUserRepository(db),
 		Admin:   NewAdminRepository(db),
 		Product: NewProductRepository(db),
 		Order:   NewOrderRepository(db),

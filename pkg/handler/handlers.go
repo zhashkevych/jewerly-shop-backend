@@ -48,8 +48,6 @@ func (h *Handler) Init() *gin.Engine {
 func (h *Handler) initPublicRoutes(router *gin.Engine) {
 	auth := router.Group("/auth")
 	{
-		auth.POST("/sign-up", h.signUp)
-		auth.POST("/sign-in", h.signIn)
 		auth.POST("/admin/sign-in", h.adminSignIn)
 	}
 

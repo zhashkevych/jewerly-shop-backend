@@ -20,12 +20,6 @@ type SignUpInput struct {
 	Password  string
 }
 
-type Auth interface {
-	SignUp(inp SignUpInput) error
-	SignIn(email, password string) (string, error)
-	ParseToken(token string) (jewerly.User, error)
-}
-
 type Admin interface {
 	SignIn(login, password string) (string, error)
 	ParseToken(token string) error
@@ -84,7 +78,6 @@ type Dependencies struct {
 }
 
 type Services struct {
-	Auth
 	Admin
 	Product
 	Order
@@ -112,7 +105,6 @@ func NewServices(deps Dependencies) *Services {
 	})
 
 	return &Services{
-		Auth:    NewAuthorization(deps.Repos.User, deps.HashSalt, deps.SigningKey),
 		Admin:   NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
 		Product: NewProductService(deps.Repos.Product, deps.FileStorage),
 		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider, emailService, deps.MinimalOrderSum),

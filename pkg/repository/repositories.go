@@ -8,6 +8,8 @@ import (
 // todo refactor package structure
 // todo remove user from DB schema
 
+//go:generate mockgen -source=repositories.go -destination=mocks/mock.go
+
 type Admin interface {
 	Authorize(login, passwordHash string) error
 }

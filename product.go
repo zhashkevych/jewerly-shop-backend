@@ -10,9 +10,9 @@ type CreateProductInput struct {
 	Titles       MultiLanguageInput `json:"titles" binding:"required"`
 	Descriptions MultiLanguageInput `json:"descriptions" binding:"required"`
 	Material     MultiLanguageInput `json:"materials" binding:"required"`
-	Price        float32            `json:"price" binding:"required"`
+	Price        float32            `json:"price" binding:"required,min=0"`
 	Code         string             `json:"code" binding:"required"`
-	ImageIds     []int              `json:"image_ids" binding:"required"`
+	ImageIds     []int              `json:"image_ids" binding:"required,min=1"`
 	CategoryId   Category           `json:"category_id" binding:"required"`
 }
 

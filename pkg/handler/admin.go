@@ -25,17 +25,21 @@ type adminSignInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type signInResponse struct {
+	Token string `json:"token"`
+}
+
 func (h *Handler) adminSignIn(c *gin.Context) {
 	var inp adminSignInInput
 	if err := c.ShouldBindJSON(&inp); err != nil {
-		logrus.Errorf("Failed to bind signUp structure: %s\n", err.Error())
-		newErrorResponse(c, http.StatusBadRequest, err)
+		logrus.WithField("handler", "adminSignIn").Errorf("Failed to bind sign in structure: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, errors.New("invalid input body"))
 		return
 	}
 
 	token, err := h.services.Admin.SignIn(inp.Login, inp.Password)
 	if err != nil {
-		logrus.Errorf("Failed to create user: %s\n", err.Error())
+		logrus.WithField("handler", "adminSignIn").Errorf("Failed to sign in: %s\n", err.Error())
 		newErrorResponse(c, http.StatusUnauthorized, err)
 		return
 	}
@@ -50,7 +54,7 @@ func (h *Handler) createProduct(c *gin.Context) {
 	var inp jewerly.CreateProductInput
 	if err := c.ShouldBindJSON(&inp); err != nil {
 		logrus.Errorf("Failed to bind createProductInput structure: %s\n", err.Error())
-		newErrorResponse(c, http.StatusBadRequest, err)
+		newErrorResponse(c, http.StatusBadRequest, errors.New("invalid input body"))
 		return
 	}
 

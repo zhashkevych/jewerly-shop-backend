@@ -1,0 +1,22 @@
+{
+  "titles": {
+    "english": "Product 1",
+    "ukrainian": "Продукт 1",
+    "russian": "Продукт 1"
+  },
+  "descriptions": {
+    "english": "Description",
+    "ukrainian": "Опис",
+    "russian": "Описание"
+  },
+  "materials": {
+    "english": "Material",
+    "ukrainian": "Матеріал",
+    "russian": "Материал"
+  },
+  "code": "ABC123",
+  "image_ids": [
+    1
+  ],
+  "category_id": 2
+}

@@ -111,6 +111,12 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 		return
 	}
 
+	if id == 0 {
+		logrus.Error("id is 0")
+		newErrorResponse(c, http.StatusBadRequest, errors.New("id can't be zero"))
+		return
+	}
+
 	if err := h.services.Product.Delete(id); err != nil {
 		logrus.Errorf("Failed to delete product: %s\n", err.Error())
 		newErrorResponse(c, getStatusCode(err), err)
@@ -136,6 +142,12 @@ func (h *Handler) getProduct(c *gin.Context) {
 	if err != nil {
 		logrus.Errorf("Failed to parse id from query: %s\n", err.Error())
 		newErrorResponse(c, http.StatusBadRequest, err)
+		return
+	}
+
+	if id == 0 {
+		logrus.Error("id is 0")
+		newErrorResponse(c, http.StatusBadRequest, errors.New("id can't be zero"))
 		return
 	}
 
@@ -167,6 +179,8 @@ func (h *Handler) uploadImage(c *gin.Context) {
 	buffer := make([]byte, fileHeader.Size)
 	file.Read(buffer)
 	fileType := http.DetectContentType(buffer)
+
+	logrus.Println("file type:", fileType)
 
 	// Validate File Type
 	if _, ex := imageTypes[fileType]; !ex {

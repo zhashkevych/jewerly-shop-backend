@@ -31,6 +31,14 @@ type UpdateProductInput struct {
 }
 
 func (i UpdateProductInput) Validate() error {
+	if (UpdateProductInput{}) == i  {
+		return errors.New("empty update product input")
+	}
+
+	if i.Price.Valid &&  i.Price.Float64 <= 0 {
+		return errors.New("price can't be negative or zero")
+	}
+
 	if i.CategoryId != nil {
 		return i.CategoryId.Validate()
 	}

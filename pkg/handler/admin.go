@@ -170,7 +170,7 @@ func (h *Handler) uploadImage(c *gin.Context) {
 	file, fileHeader, err := c.Request.FormFile("image")
 	if err != nil {
 		logrus.Errorf("Failed to get image: %s\n", err.Error())
-		newErrorResponse(c, getStatusCode(err), err)
+		newErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 
@@ -179,8 +179,6 @@ func (h *Handler) uploadImage(c *gin.Context) {
 	buffer := make([]byte, fileHeader.Size)
 	file.Read(buffer)
 	fileType := http.DetectContentType(buffer)
-
-	logrus.Println("file type:", fileType)
 
 	// Validate File Type
 	if _, ex := imageTypes[fileType]; !ex {

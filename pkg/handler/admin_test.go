@@ -649,9 +649,31 @@ func TestHandler_uploadImage(t *testing.T) {
 			expectedStatusCode:   200,
 			expectedResponseBody: `{"id":1}`,
 		},
-		// TODO Too Large
-		// TODO Wrong Ext
-		// TODO Service Error
+		{
+			name:                "File Too Large (> 5MB)",
+			filePath:            "./fixtures/images/large.png",
+			mockBehavior: func(r *mock_service.MockProduct, input uploadInput, id int) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: `{"error":"http: request body too large"}`,
+		},
+		{
+			name:                "Wrong File Format",
+			filePath:            "./fixtures/images/wrong.gif",
+			mockBehavior: func(r *mock_service.MockProduct, input uploadInput, id int) {},
+			expectedStatusCode:   400,
+			expectedResponseBody: `{"error":"invalid file type"}`,
+		},
+		{
+			name:                "Service Error",
+			filePath:            "./fixtures/images/ok2.jpg",
+			expectedContentType: "image/jpeg",
+			imageId:             1,
+			mockBehavior: func(r *mock_service.MockProduct, input uploadInput, id int) {
+				r.EXPECT().UploadImage(gomock.Any(), gomock.Any(), input.size, input.contentType).Return(id, errors.New("error processing image"))
+			},
+			expectedStatusCode:   500,
+			expectedResponseBody: `{"error":"error processing image"}`,
+		},
 	}
 
 	for _, test := range testCases {
@@ -713,6 +735,7 @@ func uploadRequest(url string, file *os.File, stat os.FileInfo) (*http.Request, 
 	if err != nil {
 		return nil, err
 	}
+
 	part.Write(fileContents)
 
 	err = writer.Close()

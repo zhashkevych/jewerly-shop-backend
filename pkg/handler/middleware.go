@@ -25,6 +25,11 @@ func (h *Handler) adminIdentity(c *gin.Context) {
 		return
 	}
 
+	if headerParts[0] != "Bearer" {
+		newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid auth header"))
+		return
+	}
+
 	if headerParts[1] == "" {
 		newErrorResponse(c, http.StatusUnauthorized, errors.New("invalid token"))
 		return

@@ -54,7 +54,6 @@ type MultiLanguageInput struct {
 
 type GetAllProductsFilters struct {
 	Language   string
-	Currency   string
 	Offset     int
 	Limit      int
 	CategoryId null.Int

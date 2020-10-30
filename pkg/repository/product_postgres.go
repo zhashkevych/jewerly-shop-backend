@@ -101,7 +101,7 @@ func (r *ProductRepository) GetAll(filters jewerly.GetAllProductsFilters) (jewer
 	var products jewerly.ProductsList
 
 	selectQuery := fmt.Sprintf(`SELECT p.id, t.%[1]s as title, d.%[1]s as description, m.%[1]s as material, p.price,
-							p.code, p.category_id, p.in_stock`, filters.Language, filters.Currency)
+							p.code, p.category_id, p.in_stock`, filters.Language)
 	fromQuery := fmt.Sprintf(` FROM %[1]s p
 							JOIN %[2]s t on t.id = p.title_id
 							JOIN %[3]s d on d.id = p.description_id

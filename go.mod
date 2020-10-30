@@ -18,7 +18,7 @@ require (
 	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/lib/pq v1.8.0
-	github.com/magiconair/properties v1.8.4 // indirect
+	github.com/magiconair/properties v1.8.4
 	github.com/minio/minio-go v6.0.14+incompatible
 	github.com/minio/minio-go/v6 v6.0.57
 	github.com/mitchellh/mapstructure v1.3.3 // indirect

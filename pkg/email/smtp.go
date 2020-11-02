@@ -19,5 +19,10 @@ func NewSMTPClient(hostname, port, sender, pass string) *SMTPClient {
 }
 
 func (c *SMTPClient) Send(m Email) error {
-	return smtp.SendMail(c.hostname+c.port, c.auth, c.emailFrom, []string{m.ToEmail}, m.EmailBytes())
+	message, err := m.EmailBytes()
+	if err != nil {
+		return err
+	}
+
+	return smtp.SendMail(c.hostname+c.port, c.auth, c.emailFrom, []string{m.ToEmail}, message)
 }

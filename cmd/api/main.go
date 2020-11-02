@@ -12,6 +12,7 @@ import (
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/handler"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/payment"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository/postgres"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/service"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/storage"
 	"io"
@@ -40,7 +41,7 @@ func init() {
 
 func main() {
 	// Init infrastructure layer
-	db, err := repository.NewPostgresDB(repository.Config{
+	db, err := postgres.NewPostgresDB(postgres.Config{
 		Host:     viper.GetString("db.postgres.host"),
 		Port:     viper.GetString("db.postgres.port"),
 		Username: viper.GetString("db.postgres.username"),

@@ -1,9 +1,9 @@
-package repository
+package postgres
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 )
 
@@ -101,7 +101,7 @@ func (r *OrderRepository) GetOrderProducts(items []jewerly.OrderItem) ([]jewerly
 
 	err := r.db.Select(&products, fmt.Sprintf(`SELECT p.id, p.price, t.english as title 
 							FROM %s p INNER JOIN %s t ON t.id = p.title_id WHERE p.id IN (%s) and p.in_stock=true`,
-							productsTable, titlesTable, ids), values...)
+		productsTable, titlesTable, ids), values...)
 	if err != nil {
 		return products, err
 	}

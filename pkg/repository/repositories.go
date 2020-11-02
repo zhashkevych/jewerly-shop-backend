@@ -3,9 +3,9 @@ package repository
 import (
 	"github.com/jmoiron/sqlx"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository/postgres"
 )
 
-// todo refactor package structure
 // todo remove user from DB schema
 
 //go:generate mockgen -source=repositories.go -destination=mocks/mock.go
@@ -41,8 +41,8 @@ type Repository struct {
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		Admin:   NewAdminRepository(db),
-		Product: NewProductRepository(db),
-		Order:   NewOrderRepository(db),
+		Admin:   postgres.NewAdminRepository(db),
+		Product: postgres.NewProductRepository(db),
+		Order:   postgres.NewOrderRepository(db),
 	}
 }

@@ -1,10 +1,12 @@
 package postgres
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
+	"strings"
 )
 
 type OrderRepository struct {
@@ -21,61 +23,18 @@ func (r *OrderRepository) Create(input jewerly.CreateOrderInput) (int, error) {
 		return 0, err
 	}
 
-	// create order
-	var orderId int
-	createOrderQuery := fmt.Sprintf(`INSERT INTO %s (first_name, last_name, additional_name, country, address, postal_code, email, total_cost)
-									VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`, ordersTable)
-	row := tx.QueryRow(createOrderQuery, input.FirstName, input.LastName, input.AdditionalName, input.Country, input.Address,
-		input.PostalCode, input.Email, input.TotalCost)
-
-	err = row.Scan(&orderId)
+	orderId, err := r.createOrder(tx, input)
 	if err != nil {
-		logrus.Errorf("failed to create new order: %s", err.Error())
-		tx.Rollback()
 		return 0, err
 	}
 
-	// create order items
-	items := ""
-	values := []interface{}{}
-	values = append(values, orderId)
-	argId := 2
-
-	for i, item := range input.Items {
-		values = append(values, item.ProductId, item.Quantity)
-
-		if i == len(input.Items)-1 {
-			items += fmt.Sprintf("($1, $%d, $%d)", argId, argId+1)
-			break
-		}
-
-		items += fmt.Sprintf("($1, $%d, $%d), ", argId, argId+1)
-
-		argId += 2
-	}
-
-	createOrderItemsQuery := fmt.Sprintf("INSERT INTO %s (order_id, product_id, quantity) VALUES %s", orderItemsTable, items)
-
-	_, err = tx.Exec(createOrderItemsQuery, values...)
+	err = r.createOrderItems(tx, orderId, input.Items)
 	if err != nil {
-		logrus.Errorf("failed to create order items: %s", err.Error())
-		tx.Rollback()
 		return 0, err
 	}
 
-	//create transaction
-	_, err = tx.Exec(fmt.Sprintf("INSERT INTO %s (order_id, uuid) VALUES ($1, $2)", transactionsTable),
-		orderId, input.TransactionID)
+	err = r.createOrderTransactionRecords(tx, orderId, input.TransactionID)
 	if err != nil {
-		logrus.Errorf("failed to create transaction: %s", err.Error())
-		tx.Rollback()
-		return 0, err
-	}
-
-	_, err = tx.Exec(fmt.Sprintf("INSERT INTO %s (uuid) VALUES ($1)", transactionsHistoryTable), input.TransactionID)
-	if err != nil {
-		logrus.Errorf("failed to insert transaction history record: %s", err.Error())
-		tx.Rollback()
 		return 0, err
 	}
 
@@ -83,39 +42,44 @@ func (r *OrderRepository) Create(input jewerly.CreateOrderInput) (int, error) {
 }
 
 func (r *OrderRepository) GetOrderProducts(items []jewerly.OrderItem) ([]jewerly.ProductResponse, error) {
+	products, err := r.getOrderProducts(items)
+	if err != nil {
+		return nil, err
+	}
+
+	err = r.getProductsImages(products)
+
+	return products, err
+}
+
+func (r *OrderRepository) getOrderProducts(items []jewerly.OrderItem) ([]jewerly.ProductResponse, error) {
 	var products []jewerly.ProductResponse
 
-	ids := ""
+	ids := make([]string, len(items))
 	values := make([]interface{}, len(items))
 
 	for i := range items {
 		values[i] = items[i].ProductId
-
-		if i == len(items)-1 {
-			ids += fmt.Sprintf("$%d", i+1)
-			break
-		}
-
-		ids += fmt.Sprintf("$%d, ", i+1)
+		ids[i] = fmt.Sprintf("$%d", i+1)
 	}
 
-	err := r.db.Select(&products, fmt.Sprintf(`SELECT p.id, p.price, t.english as title 
-							FROM %s p INNER JOIN %s t ON t.id = p.title_id WHERE p.id IN (%s) and p.in_stock=true`,
-		productsTable, titlesTable, ids), values...)
-	if err != nil {
-		return products, err
-	}
+	err := r.db.Select(&products, fmt.Sprintf("SELECT p.id, p.price FROM %s p INNER JOIN %s t ON t.id = p.title_id WHERE p.id IN (%s) and p.in_stock=true",
+		productsTable, titlesTable, strings.Join(ids, ",")), values...)
 
+	return products, err
+}
+
+func (r *OrderRepository) getProductsImages(products []jewerly.ProductResponse) error {
 	for i := range products {
 		err := r.db.Select(&products[i].Images,
 			fmt.Sprintf("SELECT i.id, i.url, i.alt_text FROM %s i INNER JOIN %s pi on pi.image_id = i.id WHERE pi.product_id=$1", imagesTable, productImagesTable),
 			products[i].Id)
 		if err != nil {
-			return products, err
+			return err
 		}
 	}
 
-	return products, nil
+	return nil
 }
 
 func (r *OrderRepository) CreateTransaction(transactionId, cardMask, status string) error {
@@ -198,4 +162,64 @@ func (r *OrderRepository) GetById(id int) (jewerly.Order, error) {
 	}
 
 	return order, nil
+}
+
+func (r *OrderRepository) createOrder(tx *sql.Tx, input jewerly.CreateOrderInput) (int, error) {
+	var orderId int
+	createOrderQuery := fmt.Sprintf(`INSERT INTO %s (first_name, last_name, additional_name, country, address, postal_code, email, total_cost)
+									VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`, ordersTable)
+	row := tx.QueryRow(createOrderQuery, input.FirstName, input.LastName, input.AdditionalName, input.Country, input.Address,
+		input.PostalCode, input.Email, input.TotalCost)
+	err := row.Scan(&orderId)
+	if err != nil {
+		logrus.Errorf("failed to create new order: %s", err.Error())
+		tx.Rollback()
+		return 0, err
+	}
+
+	return orderId, nil
+}
+
+func (r *OrderRepository) createOrderItems(tx *sql.Tx, orderId int, orderItems []jewerly.OrderItem) error {
+	items := []string{}
+	values := []interface{}{}
+	values = append(values, orderId)
+	argId := 2
+
+	for _, item := range orderItems {
+		values = append(values, item.ProductId, item.Quantity)
+		items = append(items, fmt.Sprintf("($1, $%d, $%d)", argId, argId+1))
+
+		argId += 2
+	}
+
+	createOrderItemsQuery := fmt.Sprintf("INSERT INTO %s (order_id, product_id, quantity) VALUES %s", orderItemsTable, strings.Join(items, ","))
+
+	_, err := tx.Exec(createOrderItemsQuery, values...)
+	if err != nil {
+		logrus.Errorf("failed to create order items: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	return nil
+}
+
+func (r *OrderRepository) createOrderTransactionRecords(tx *sql.Tx, orderId int, transactionId string) error {
+	_, err := tx.Exec(fmt.Sprintf("INSERT INTO %s (order_id, uuid) VALUES ($1, $2)", transactionsTable),
+		orderId, transactionId)
+	if err != nil {
+		logrus.Errorf("failed to create transaction: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(fmt.Sprintf("INSERT INTO %s (uuid) VALUES ($1)", transactionsHistoryTable), transactionId)
+	if err != nil {
+		logrus.Errorf("failed to insert transaction history record: %s", err.Error())
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }

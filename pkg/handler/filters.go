@@ -18,23 +18,29 @@ func getProductFilters(c *gin.Context) jewerly.GetAllProductsFilters {
 	}
 
 	limit, err := strconv.Atoi(c.Query("limit"))
-	if err != nil {
+	if err != nil || limit <= 0 {
 		filters.Limit = defaultLimit
 	} else {
 		filters.Limit = limit
 	}
 
 	offset, err := strconv.Atoi(c.Query("offset"))
-	if err != nil {
+	if err != nil || offset < 0{
 		filters.Offset = defaultOffset
 	} else {
 		filters.Offset = offset
 	}
 
 	categoryId, err := strconv.Atoi(c.Query("category"))
-	if err == nil && categoryId != 0 {
-		filters.CategoryId = null.NewInt(int64(categoryId), true)
+	if err != nil {
+		return filters
 	}
+
+	if err := jewerly.Category(categoryId).Validate(); err != nil {
+		return filters
+	}
+
+	filters.CategoryId = null.NewInt(int64(categoryId), true)
 
 	return filters
 }
@@ -43,14 +49,14 @@ func getOrderFilters(c *gin.Context) jewerly.GetAllOrdersFilters {
 	var filters jewerly.GetAllOrdersFilters
 
 	limit, err := strconv.Atoi(c.Query("limit"))
-	if err != nil {
+	if err != nil || limit <= 0{
 		filters.Limit = defaultLimit
 	} else {
 		filters.Limit = limit
 	}
 
 	offset, err := strconv.Atoi(c.Query("offset"))
-	if err != nil {
+	if err != nil || offset < 0{
 		filters.Offset = defaultOffset
 	} else {
 		filters.Offset = offset

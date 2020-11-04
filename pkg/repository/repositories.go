@@ -3,13 +3,12 @@ package repository
 import (
 	"github.com/jmoiron/sqlx"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
+	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository/postgres"
 )
 
-type User interface {
-	Create(user jewerly.User) error
-	GetByCredentials(email, passwordHash string) (jewerly.User, error)
-	GetById(id int64) (jewerly.User, error)
-}
+// todo remove user from DB schema
+
+//go:generate mockgen -source=repositories.go -destination=mocks/mock.go
 
 type Admin interface {
 	Authorize(login, passwordHash string) error
@@ -35,7 +34,6 @@ type Order interface {
 }
 
 type Repository struct {
-	User
 	Admin
 	Product
 	Order
@@ -43,9 +41,8 @@ type Repository struct {
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		User:    NewUserRepository(db),
-		Admin:   NewAdminRepository(db),
-		Product: NewProductRepository(db),
-		Order:   NewOrderRepository(db),
+		Admin:   postgres.NewAdminRepository(db),
+		Product: postgres.NewProductRepository(db),
+		Order:   postgres.NewOrderRepository(db),
 	}
 }

@@ -3,3 +3,6 @@
 .bin
 .localstack
 .env
+
+cover.out
+*.DS_store

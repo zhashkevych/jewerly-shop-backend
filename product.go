@@ -10,9 +10,9 @@ type CreateProductInput struct {
 	Titles       MultiLanguageInput `json:"titles" binding:"required"`
 	Descriptions MultiLanguageInput `json:"descriptions" binding:"required"`
 	Material     MultiLanguageInput `json:"materials" binding:"required"`
-	Price        float32            `json:"price" binding:"required"`
+	Price        float32            `json:"price" binding:"required,min=0"`
 	Code         string             `json:"code" binding:"required"`
-	ImageIds     []int              `json:"image_ids" binding:"required"`
+	ImageIds     []int              `json:"image_ids" binding:"required,min=1"`
 	CategoryId   Category           `json:"category_id" binding:"required"`
 }
 
@@ -31,6 +31,14 @@ type UpdateProductInput struct {
 }
 
 func (i UpdateProductInput) Validate() error {
+	if (UpdateProductInput{}) == i  {
+		return errors.New("empty update product input")
+	}
+
+	if i.Price.Valid &&  i.Price.Float64 <= 0 {
+		return errors.New("price can't be negative or zero")
+	}
+
 	if i.CategoryId != nil {
 		return i.CategoryId.Validate()
 	}
@@ -46,7 +54,6 @@ type MultiLanguageInput struct {
 
 type GetAllProductsFilters struct {
 	Language   string
-	Currency   string
 	Offset     int
 	Limit      int
 	CategoryId null.Int

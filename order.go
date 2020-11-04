@@ -34,9 +34,31 @@ type CreateOrderInput struct {
 	TotalCost      float32
 }
 
+func (i CreateOrderInput) Validate() error {
+	if len(i.Items) < 1 {
+		return errors.New("order should have at least 1 item")
+	}
+
+	for _, item := range i.Items {
+		if err := item.Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 type OrderItem struct {
-	ProductId int `json:"product_id" db:"product_id"  binding:"required"`
-	Quantity  int `json:"quantity" db:"quantity" binding:"required"`
+	ProductId int `json:"product_id" db:"product_id"  binding:"required,min=1"`
+	Quantity  int `json:"quantity" db:"quantity" binding:"required,min=1"`
+}
+
+func (i OrderItem) Validate() error {
+	if i.ProductId < 1 || i.Quantity < 1 {
+		return errors.New("order item is invalid")
+	}
+
+	return nil
 }
 
 type TransactionCallbackInput struct {

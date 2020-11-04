@@ -27,6 +27,8 @@ func (h *Handler) Init() *gin.Engine {
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
+
+	// todo move to config
 	config.AllowHeaders = append(config.AllowHeaders, "Access-Control-Request-Headers", "Authorization", "X-Forwarded-For",
 		"Host", "User-Agent", "Accept")
 	router.Use(cors.New(config))
@@ -46,8 +48,6 @@ func (h *Handler) Init() *gin.Engine {
 func (h *Handler) initPublicRoutes(router *gin.Engine) {
 	auth := router.Group("/auth")
 	{
-		auth.POST("/sign-up", h.signUp)
-		auth.POST("/sign-in", h.signIn)
 		auth.POST("/admin/sign-in", h.adminSignIn)
 	}
 
@@ -60,12 +60,6 @@ func (h *Handler) initPublicRoutes(router *gin.Engine) {
 func (h *Handler) initAPIRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
-		user := api.Group("/user",  h.userIdentity)
-		{
-			user.GET("/profile", h.getUserProfile)
-			//user.GET("/orders", h.getUserOrders)
-		}
-
 		products := api.Group("/products")
 		{
 			products.GET("", h.getAllProducts)
@@ -85,9 +79,11 @@ func (h *Handler) initAdminRoutes(router *gin.Engine) {
 		admin.GET("/products/:id", h.getProduct)
 		admin.PUT("/products/:id", h.updateProduct)
 		admin.DELETE("/products/:id", h.deleteProduct)
+
 		// orders routes
 		admin.GET("/orders", h.getAllOrders)
 		admin.GET("/orders/:id", h.getOrder)
+
 		// product images
 		admin.POST("/upload", h.uploadImage)
 	}

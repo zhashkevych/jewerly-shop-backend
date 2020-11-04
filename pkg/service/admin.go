@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+const (
+	tokenTTL = 12 * time.Hour
+)
+
 type AdminService struct {
 	repo       repository.Admin
 	salt       string

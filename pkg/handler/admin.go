@@ -25,17 +25,21 @@ type adminSignInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type signInResponse struct {
+	Token string `json:"token"`
+}
+
 func (h *Handler) adminSignIn(c *gin.Context) {
 	var inp adminSignInInput
 	if err := c.ShouldBindJSON(&inp); err != nil {
-		logrus.Errorf("Failed to bind signUp structure: %s\n", err.Error())
-		newErrorResponse(c, http.StatusBadRequest, err)
+		logrus.WithField("handler", "adminSignIn").Errorf("Failed to bind sign in structure: %s\n", err.Error())
+		newErrorResponse(c, http.StatusBadRequest, errors.New("invalid input body"))
 		return
 	}
 
 	token, err := h.services.Admin.SignIn(inp.Login, inp.Password)
 	if err != nil {
-		logrus.Errorf("Failed to create user: %s\n", err.Error())
+		logrus.WithField("handler", "adminSignIn").Errorf("Failed to sign in: %s\n", err.Error())
 		newErrorResponse(c, http.StatusUnauthorized, err)
 		return
 	}
@@ -50,7 +54,7 @@ func (h *Handler) createProduct(c *gin.Context) {
 	var inp jewerly.CreateProductInput
 	if err := c.ShouldBindJSON(&inp); err != nil {
 		logrus.Errorf("Failed to bind createProductInput structure: %s\n", err.Error())
-		newErrorResponse(c, http.StatusBadRequest, err)
+		newErrorResponse(c, http.StatusBadRequest, errors.New("invalid input body"))
 		return
 	}
 
@@ -107,6 +111,12 @@ func (h *Handler) deleteProduct(c *gin.Context) {
 		return
 	}
 
+	if id == 0 {
+		logrus.Error("id is 0")
+		newErrorResponse(c, http.StatusBadRequest, errors.New("id can't be zero"))
+		return
+	}
+
 	if err := h.services.Product.Delete(id); err != nil {
 		logrus.Errorf("Failed to delete product: %s\n", err.Error())
 		newErrorResponse(c, getStatusCode(err), err)
@@ -135,6 +145,12 @@ func (h *Handler) getProduct(c *gin.Context) {
 		return
 	}
 
+	if id == 0 {
+		logrus.Error("id is 0")
+		newErrorResponse(c, http.StatusBadRequest, errors.New("id can't be zero"))
+		return
+	}
+
 	language := jewerly.GetLanguageFromQuery(c.Query("language"))
 
 	product, err := h.services.Product.GetById(id, language)
@@ -154,7 +170,7 @@ func (h *Handler) uploadImage(c *gin.Context) {
 	file, fileHeader, err := c.Request.FormFile("image")
 	if err != nil {
 		logrus.Errorf("Failed to get image: %s\n", err.Error())
-		newErrorResponse(c, getStatusCode(err), err)
+		newErrorResponse(c, http.StatusBadRequest, err)
 		return
 	}
 

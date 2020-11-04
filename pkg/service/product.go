@@ -2,17 +2,12 @@ package service
 
 import (
 	"context"
+	"github.com/hashicorp/go-uuid"
 	"github.com/sirupsen/logrus"
 	jewerly "github.com/zhashkevych/jewelry-shop-backend"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/repository"
 	"github.com/zhashkevych/jewelry-shop-backend/pkg/storage"
 	"io"
-	"math/rand"
-)
-
-const (
-	letterBytes    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	fileNameLength = 16
 )
 
 type ProductService struct {
@@ -73,9 +68,14 @@ func (s *ProductService) GetById(id int, language string) (jewerly.ProductRespon
 }
 
 func (s *ProductService) UploadImage(ctx context.Context, file io.Reader, size int64, contentType string) (int, error) {
+	filename, err := generateFileName()
+	if err != nil {
+		return 0, err
+	}
+
 	url, err := s.fileStorage.Upload(ctx, storage.UploadInput{
 		File:        file,
-		Name:        generateFileName(),
+		Name:        filename,
 		Size:        size,
 		ContentType: contentType,
 	})
@@ -86,10 +86,6 @@ func (s *ProductService) UploadImage(ctx context.Context, file io.Reader, size i
 	return s.repo.CreateImage(url, "")
 }
 
-func generateFileName() string {
-	b := make([]byte, fileNameLength)
-	for i := range b {
-		b[i] = letterBytes[rand.Intn(len(letterBytes))]
-	}
-	return string(b)
+func generateFileName() (string, error) {
+	return uuid.GenerateUUID()
 }

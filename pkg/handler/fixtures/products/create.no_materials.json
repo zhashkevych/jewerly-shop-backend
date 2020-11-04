@@ -1,0 +1,18 @@
+{
+  "titles": {
+    "english": "Product 1",
+    "ukrainian": "Продукт 1",
+    "russian": "Продукт 1"
+  },
+  "descriptions": {
+    "english": "Description",
+    "ukrainian": "Опис",
+    "russian": "Описание"
+  },
+  "price": 199.99,
+  "code": "ABC123",
+  "image_ids": [
+    1
+  ],
+  "category_id": 2
+}

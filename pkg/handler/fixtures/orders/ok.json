@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 3
+    },
+    {
+      "product_id": 2,
+      "quantity": 3
+    }
+  ],
+  "first_name": "Vasya",
+  "last_name": "Pupkin",
+  "additional_name": "Aleksandrovich",
+  "email": "vasya@pupkin.com",
+  "phone": "+380950515344",
+  "country": "UA",
+  "address": "st. Khreshatyk, Kiev",
+  "postal_code": "12303"
+}

@@ -48,6 +48,13 @@ type Email interface {
 	SendPaymentInfoCustomer(inp jewerly.PaymentInfoEmailInput) error
 }
 
+type Settings interface {
+	GetHomepageSettings()
+	SetHomepageSettings()
+	GetText()
+	SetText()
+}
+
 // Services Interface, Constructor & Dependencies
 type Dependencies struct {
 	Repos           *repository.Repository

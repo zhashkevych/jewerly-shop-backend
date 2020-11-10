@@ -68,9 +68,7 @@ func (h *Handler) initAPIRoutes(router *gin.Engine) {
 
 		api.POST("/order", h.placeOrder)
 
-		api.GET("/homepage")
-		api.GET("/privacy-policy")
-		api.GET("/about-us")
+		api.GET("/settings", h.getSettings)
 	}
 }
 
@@ -88,11 +86,11 @@ func (h *Handler) initAdminRoutes(router *gin.Engine) {
 
 		settings := admin.Group("/settings")
 		{
-			settings.GET("/homepage", h.getHomepage)
-			settings.POST("/homepage", h.setHomepage)
+			settings.GET("/homepage/images", h.getHomepageImages)
+			settings.PUT("/homepage/image/:id", h.setHomepageImage)
 
-			settings.GET("/text", h.getText)
-			settings.POST("/text", h.setText)
+			settings.GET("/text-block", h.getTextBlocks)
+			settings.PUT("/text-block/:id", h.setTextBlock)
 		}
 
 		admin.POST("/upload", h.uploadImage)

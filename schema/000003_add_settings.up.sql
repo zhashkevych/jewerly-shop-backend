@@ -1,4 +1,4 @@
-CREATE TABLE text
+CREATE TABLE text_blocks
 (
     "id"        serial       NOT NULL UNIQUE,
     "english"   varchar(255) NOT NULL,
@@ -6,16 +6,8 @@ CREATE TABLE text
     "ukrainian" varchar(255) NOT NULL
 );
 
-CREATE TABLE homepage_settings
+CREATE TABLE homepage_images
 (
-    "image_id" int REFERENCES images (id) NOT NULL,
-    "button_text_id" int REFERENCES text (id) NOT NULL,
-    "text_block_1_id" int REFERENCES text (id) NOT NULL,
-    "text_block_2_id" int REFERENCES text (id) NOT NULL
-);
-
-CREATE TABLE homepage_product_item
-(
-    "id"        serial       NOT NULL UNIQUE,
-    "product_id" int REFERENCES products (id) NOT NULL
+    "id" serial       NOT NULL UNIQUE,
+    "image_id" int REFERENCES images (id) NOT NULL ON DELETE CASCADE
 );

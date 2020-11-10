@@ -49,10 +49,15 @@ type Email interface {
 }
 
 type Settings interface {
-	GetHomepageSettings()
-	SetHomepageSettings()
-	GetText()
-	SetText()
+	GetSettings()
+
+	GetHomepageImages()
+	SetHomepageImage()
+
+	GetTextblockById()
+	GetTextblocks()
+
+	SetTextblock()
 }
 
 // Services Interface, Constructor & Dependencies

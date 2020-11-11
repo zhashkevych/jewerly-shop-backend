@@ -17,6 +17,9 @@ const (
 	transactionsTable        = "transactions"
 	transactionsHistoryTable = "transactions_history"
 	adminUsersTable          = "admin_users"
+	homepageImagesTable      = "homepage_images"
+	textBlocksTable          = "text_blocks"
+	multiLanguageTextTable   = "multilanguage_text"
 )
 
 type Config struct {

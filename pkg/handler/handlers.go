@@ -87,10 +87,13 @@ func (h *Handler) initAdminRoutes(router *gin.Engine) {
 		settings := admin.Group("/settings")
 		{
 			settings.GET("/homepage/images", h.getHomepageImages)
-			settings.PUT("/homepage/image/:id", h.setHomepageImage)
+			settings.POST("/homepage/image", h.createHomepageImage)
+			settings.PUT("/homepage/image/:id", h.updateHomepageImage)
 
-			settings.GET("/text-block", h.getTextBlocks)
-			settings.PUT("/text-block/:id", h.setTextBlock)
+			settings.GET("/text-blocks", h.getTextBlocks)
+			settings.POST("/text-block", h.createTextBlock)
+			settings.GET("/text-block/:id", h.getTextBlockById)
+			settings.PUT("/text-block/:id", h.updateTextBlock)
 		}
 
 		admin.POST("/upload", h.uploadImage)

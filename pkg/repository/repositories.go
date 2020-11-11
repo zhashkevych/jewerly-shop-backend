@@ -33,16 +33,35 @@ type Order interface {
 	GetById(id int) (jewerly.Order, error)
 }
 
+type Settings interface {
+	GetImages() ([]jewerly.HomepageImage, error)
+	CreateImage(imageID int) error
+	UpdateImage(id, imageID int) error
+
+	GetTextBlocks() ([]jewerly.TextBlock, error)
+	GetTextBlockById(id int) (jewerly.TextBlock, error)
+	CreateTextBlock(block jewerly.TextBlock) error
+	UpdateTextBlock(id int, block jewerly.UpdateTextBlockInput) error
+}
+
+type PageText interface {
+	Create(page string, input jewerly.MultiLanguageInput) error
+	Update()
+	Get()
+}
+
 type Repository struct {
 	Admin
 	Product
 	Order
+	Settings
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		Admin:   postgres.NewAdminRepository(db),
-		Product: postgres.NewProductRepository(db),
-		Order:   postgres.NewOrderRepository(db),
+		Admin:    postgres.NewAdminRepository(db),
+		Product:  postgres.NewProductRepository(db),
+		Order:    postgres.NewOrderRepository(db),
+		Settings: postgres.NewSettingsRepository(db),
 	}
 }

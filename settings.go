@@ -29,5 +29,5 @@ type HomepageImage struct {
 }
 type Settings struct {
 	Images     []HomepageImage `json:"images"`
-	TextBlocks []TextBlock     `json:"text-blocks"`
+	TextBlocks []TextBlock     `json:"text_blocks"`
 }

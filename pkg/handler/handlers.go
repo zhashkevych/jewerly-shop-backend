@@ -67,24 +67,35 @@ func (h *Handler) initAPIRoutes(router *gin.Engine) {
 		}
 
 		api.POST("/order", h.placeOrder)
+
+		api.GET("/settings", h.getSettings)
 	}
 }
 
 func (h *Handler) initAdminRoutes(router *gin.Engine) {
 	admin := router.Group("/admin", h.adminIdentity)
 	{
-		// product routes
 		admin.POST("/products", h.createProduct)
 		admin.GET("/products", h.getAllProducts)
 		admin.GET("/products/:id", h.getProduct)
 		admin.PUT("/products/:id", h.updateProduct)
 		admin.DELETE("/products/:id", h.deleteProduct)
 
-		// orders routes
 		admin.GET("/orders", h.getAllOrders)
 		admin.GET("/orders/:id", h.getOrder)
 
-		// product images
+		settings := admin.Group("/settings")
+		{
+			settings.GET("/homepage/images", h.getHomepageImages)
+			settings.POST("/homepage/image", h.createHomepageImage)
+			settings.PUT("/homepage/image/:id", h.updateHomepageImage)
+
+			settings.GET("/text-blocks", h.getTextBlocks)
+			settings.POST("/text-block", h.createTextBlock)
+			settings.GET("/text-block/:id", h.getTextBlockById)
+			settings.PUT("/text-block/:id", h.updateTextBlock)
+		}
+
 		admin.POST("/upload", h.uploadImage)
 	}
 }

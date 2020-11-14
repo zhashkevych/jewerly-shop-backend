@@ -48,6 +48,19 @@ type Email interface {
 	SendPaymentInfoCustomer(inp jewerly.PaymentInfoEmailInput) error
 }
 
+type Settings interface {
+	GetSettings() (jewerly.Settings, error)
+
+	GetImages() ([]jewerly.HomepageImage, error)
+	CreateImage(imageID int) error
+	UpdateImage(id, imageID int) error
+
+	GetTextBlocks() ([]jewerly.TextBlock, error)
+	GetTextBlockById(id int) (jewerly.TextBlock, error)
+	CreateTextBlock(block jewerly.TextBlock) error
+	UpdateTextBlock(id int, block jewerly.UpdateTextBlockInput) error
+}
+
 // Services Interface, Constructor & Dependencies
 type Dependencies struct {
 	Repos           *repository.Repository
@@ -82,6 +95,7 @@ type Services struct {
 	Product
 	Order
 	Email
+	Settings
 }
 
 func NewServices(deps Dependencies) *Services {
@@ -105,9 +119,10 @@ func NewServices(deps Dependencies) *Services {
 	})
 
 	return &Services{
-		Admin:   NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
-		Product: NewProductService(deps.Repos.Product, deps.FileStorage),
-		Order:   NewOrderService(deps.Repos.Order, deps.PaymentProvider, emailService, deps.MinimalOrderSum),
-		Email:   emailService,
+		Admin:    NewAdminService(deps.Repos.Admin, deps.HashSalt, deps.SigningKey),
+		Product:  NewProductService(deps.Repos.Product, deps.FileStorage),
+		Order:    NewOrderService(deps.Repos.Order, deps.PaymentProvider, emailService, deps.MinimalOrderSum),
+		Email:    emailService,
+		Settings: NewSettingsService(deps.Repos.Settings),
 	}
 }

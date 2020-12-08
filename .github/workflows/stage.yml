@@ -19,7 +19,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout master
+      - name: Checkout develop
         uses: actions/checkout@v2
 
       - name: Set up Go 1.14
@@ -38,11 +38,11 @@ jobs:
     needs: test
 
     steps:
-      - name: Checkout master
+      - name: Checkout develop
         uses: actions/checkout@v2
 
       - name: Build container image
-        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) ./deploy/
+        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2

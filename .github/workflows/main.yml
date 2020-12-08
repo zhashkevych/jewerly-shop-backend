@@ -83,7 +83,7 @@ jobs:
 
             # Run a new container from a new image
             docker run --env-file $(echo $ENV_FILE_PATH) \
-            -v $(echo $LOGS_PATH):/logs -d\
+            -v $(echo $LOGS_PATH):/logs -d \
             --restart always \
             --publish 8000:8000 \
             --name $(echo CONTAINER_NAME) \

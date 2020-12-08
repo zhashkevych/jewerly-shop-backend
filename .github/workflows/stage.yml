@@ -3,17 +3,17 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - develop
   pull_request:
     branches:
-      - main
+      - develop
 
 env:
   REGISTRY: "registry.digitalocean.com/jewerly-shop"
   IMAGE_NAME: "jewerly-api"
-  CONTAINER_NAME: "jewerly-api"
-  ENV_FILE_PATH: "./jewerly-shop/.env.prod"
-  LOGS_PATH: "/root/jewerly-shop/api/logs/prod"
+  CONTAINER_NAME: "jewerly-api-stage"
+  ENV_FILE_PATH: "./jewerly-shop/.env.stage"
+  LOGS_PATH: "/root/jewerly-shop/api/logs/stage"
 
 jobs:
   test:
@@ -71,9 +71,9 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,ENV_FILE_PATH,CONTAINER_NAME
           script: |
             # Set env variables
-            export POSTGRES_PASSWORD=${{ secrets.PG_PASSWORD }}
-            export ACCESS_KEY=${{ secrets.DO_ACCESS_KEY }}
-            export SECRET_KEY=${{ secrets.DO_SECRET_KEY }}
+            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            export ACCESS_KEY=${{ secrets.ACCESS_KEY }}
+            export SECRET_KEY=${{ secrets.SECRET_KEY }}
 
             # Stop running container
             docker stop $(echo $IMAGE_NAME)

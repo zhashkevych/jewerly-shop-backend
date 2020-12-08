@@ -79,16 +79,16 @@ jobs:
             export SECRET_KEY=${{ secrets.SECRET_KEY }}
 
             # Stop running container
-            docker stop $(echo $IMAGE_NAME)
+            docker stop $(echo $CONTAINER_NAME)
 
             # Remove old container
-            docker rm $(echo $IMAGE_NAME)
+            docker rm $(echo $CONTAINER_NAME)
 
             # Run a new container from a new image
             docker run --env-file $(echo $ENV_FILE_PATH) \
             -v $(echo $LOGS_PATH):/logs -d \
             --restart always \
             --publish 8000:8000 \
-            --name $(echo CONTAINER_NAME) \
+            --name $(echo $CONTAINER_NAME) \
             --link=jewerly-db:db \
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)

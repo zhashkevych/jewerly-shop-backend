@@ -16,6 +16,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/json-iterator/go v1.1.10 // indirect
+	github.com/keighl/barkup v0.0.0-20170220130926-692ec4e5a83a // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/lib/pq v1.8.0
@@ -44,4 +45,5 @@ require (
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
+	launchpad.net/goamz v0.0.0-20140813150539-000000000049 // indirect
 )

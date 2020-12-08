@@ -2,20 +2,93 @@ name: CI
 
 on:
   push:
-    branches: [ develop ]
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+env:
+  REGISTRY: "registry.digitalocean.com/jewerly-shop"
+  IMAGE_NAME: "jewerly-api"
+  CONTAINER_NAME: "jewerly-api-stage"
+  ENV_FILE_PATH: "./jewerly-shop/.env.stage"
+  LOGS_PATH: "/root/jewerly-shop/api/logs/stage"
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: pull, build & run
-        uses: appleboy/ssh-action@master
+      - name: Checkout develop
+        uses: actions/checkout@v2
+
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Test
+        run: go test ./...
+  build_and_push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: test
+
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v2
+
+      - name: Build container image
+        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: build_and_push
+
+    steps:
+      - name: Deploy to Digital Ocean droplet via SSH action
+        uses: appleboy/ssh-action@v0.1.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.PORT }}
+          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,LOGS_PATH,ENV_FILE_PATH,CONTAINER_NAME
           script: |
-            source ~/.bash_profile
-            cd ${{ secrets.PROJECTPATH }}
-            chmod +x ./deploy-stage.sh && ./deploy-stage.sh
+            # Login into Digital Ocean Registry
+            docker login -u ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} -p ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }} $(echo $REGISTRY)
+
+            # Set env variables
+            export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            export ACCESS_KEY=${{ secrets.ACCESS_KEY }}
+            export SECRET_KEY=${{ secrets.SECRET_KEY }}
+
+            # Stop running container
+            docker stop $(echo $CONTAINER_NAME)
+
+            # Remove old container
+            docker rm $(echo $CONTAINER_NAME)
+
+            # Run a new container from a new image
+            docker run --env-file $(echo $ENV_FILE_PATH) \
+            -v $(echo $LOGS_PATH):/logs -d \
+            --restart always \
+            --publish 8001:8000 \
+            --name $(echo $CONTAINER_NAME) \
+            --link=jewerly-db:db \
+            $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)

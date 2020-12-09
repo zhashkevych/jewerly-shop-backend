@@ -31,11 +31,11 @@ type UpdateProductInput struct {
 }
 
 func (i UpdateProductInput) Validate() error {
-	if (UpdateProductInput{}) == i  {
+	if (UpdateProductInput{}) == i {
 		return errors.New("empty update product input")
 	}
 
-	if i.Price.Valid &&  i.Price.Float64 <= 0 {
+	if i.Price.Valid && i.Price.Float64 <= 0 {
 		return errors.New("price can't be negative or zero")
 	}
 
@@ -104,9 +104,9 @@ const (
 	CategoryNecklaces
 	CategorySets
 
-	English    = "english"
-	Ukraininan = "ukrainian"
-	Russian    = "russian"
+	English   = "english"
+	Ukrainian = "ukrainian"
+	Russian   = "russian"
 )
 
 var (
@@ -122,10 +122,10 @@ var (
 	languageQueries = map[string]string{
 		"en":        English,
 		"ru":        Russian,
-		"ua":        Ukraininan,
+		"ua":        Ukrainian,
 		"english":   English,
 		"russian":   Russian,
-		"ukrainian": Ukraininan,
+		"ukrainian": Ukrainian,
 	}
 )
 

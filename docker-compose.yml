@@ -4,7 +4,9 @@ services:
   server:
     image: jewelry-shop
     container_name: "jewelry-shop"
-    build: ./Dockerfile.local
+    build:
+      context: .
+      dockerfile: Dockerfile.local
     volumes:
       - ./.build/volumes/logs:/logs
     env_file:
